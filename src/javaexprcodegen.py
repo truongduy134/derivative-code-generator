@@ -6,6 +6,12 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
     to compute the input math expressions
     """
 
+    SUPPORT_TRIGO_FUNCS = {
+        OperatorType.SIN_REAL: "Math.sin",
+        OperatorType.COS_REAL: "Math.cos",
+        OperatorType.TAN_REAL: "Math.tan",
+    }
+
     def __init__(
             self,
             var_list,
@@ -34,7 +40,7 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
                 is_first = False
             else:
                 header += ", "
-            header += "double " + var.name 
+            header += "double " + var 
         header += ") {\n"
         file_handler.write(header)
 
@@ -77,8 +83,14 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
         if op_type == OperatorType.POW_REAL:
             statement_str += ("Math.pow(" + operand_names[0] + ", " +
                               operand_names[1] + ")")
+        elif op_type in JavaExprCodeGenerator.SUPPORT_TRIGO_FUNCS:
+            statement_str += (JavaExprCodeGenerator.SUPPORT_TRIGO_FUNCS[op_type] 
+                              + "(" + operand_names[0] + ")")
+        elif op_type == OperatorType.COT_REAL:
+            statement_str += ("Math.sin(" + operand_names[0] + ") / Math.cos(" +
+                              operand_names[0] + ")")
         elif op_type in [OperatorType.ADD_REAL, OperatorType.MUL_REAL]:
-            op_char = '+' if op_type == OperatorType.ADD_REAL else '*'
+            op_char = " + " if op_type == OperatorType.ADD_REAL else " * "
             statement_str += op_char.join(operand_names)
         else:
             # Better handling of this case (Throw exception?)
