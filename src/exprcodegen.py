@@ -1,25 +1,47 @@
 from abc import ABCMeta, abstractmethod
 from sympy import Add, Mul, Pow, Symbol, sin, cos, tan, cot
+from sympy.matrices.expressions.matexpr import MatrixElement
 
 class OperatorType(object):
-    """
+    """ An enum class for different operator / operand types
     """
     UNKNOWN = 0
     NUMBER = 1
     SYMBOL = 2
-    ADD_REAL = 3
-    MUL_REAL = 4
-    POW_REAL = 5
-    SIN_REAL = 6
-    COS_REAL = 7
-    TAN_REAL = 8
-    COT_REAL = 9
+    MATRIX = 3
+    ADD_REAL = 4
+    MUL_REAL = 5
+    POW_REAL = 6
+    SIN_REAL = 7
+    COS_REAL = 8
+    TAN_REAL = 9
+    COT_REAL = 10
 
 class IndentType(object):
-    """
+    """ An enum class for identation types (by space or by tab)
     """
     BY_SPACE = 0
     BY_TAB = 1
+
+class VariableType(object):
+    """ An enum class for variable types (number, vector, or matrix)
+    """
+    NUMBER = 0
+    VECTOR = 1
+    MATRIX = 2
+
+class Variable(object):
+    """ A class that encapsulates variable information
+    """
+    # Class field
+    name = ""
+    var_type = VariableType.NUMBER
+    dimension = ()
+
+    def __init__(self, name, var_type, dimension):
+        self.name = name
+        self.var_type = var_type
+        self.dimension = dimension
 
 def get_operator_type(sympy_expr):
     """ Gets operator type of the root of the input expression tree
@@ -44,6 +66,8 @@ def get_operator_type(sympy_expr):
         return OperatorType.POW_REAL
     if operator == Symbol:
         return OperatorType.SYMBOL
+    if operator == MatrixElement:
+        return OperatorType.MATRIX
     if operator == sin:
         return OperatorType.SIN_REAL
     if operator == cos:
@@ -70,6 +94,8 @@ class ExprCodeGenerator(object):
     tab_type = IndentType.BY_SPACE
     tab_size = DEFAULT_TAB_SIZE     # Used in case tab type is space
     expr = ""   # A sympy math expression
+    _var_dict = {}
+    var_list = []
     temp_var_prefix = DEFAULT_TEMP_NAME
     func_name = DEFAULT_FUNC_NAME
     __num_temp_var_used = 0
@@ -100,6 +126,7 @@ class ExprCodeGenerator(object):
         else:
             self.tab_size = tab_size
         self.__num_temp_var_used = 0
+        self._var_dict = {var_obj.name: var_obj for var_obj in self.var_list}
 
     def _get_nxt_temp_var_name(self):
         """ Gets the name that can be used for the next temporary variable.
@@ -165,6 +192,20 @@ class ExprCodeGenerator(object):
         """
         pass
 
+    @abstractmethod
+    def _gen_arr_access_code(self, var_obj, index_tuple):
+        """ Generates code for array / matrix element access
+        Subclass should implement this method to generate code in a specific
+        programming language
+        Args:
+            var_obj : an object containing information about the 
+                      array / matrix variable, such as name, type, dimension
+            index_tuple : a tuple indicating the index of the element accessed
+        Returns:
+            A string representing the code to access array / matrix element
+        """
+        pass
+
     def _gen_code_expr(self, sympy_expr, file_handler):
         """ Generates code for a function to evaluate input expression
         Args:
@@ -186,6 +227,11 @@ class ExprCodeGenerator(object):
                 operand_names.append(str(operand.evalf()))
             elif operand_type == OperatorType.SYMBOL:
                 operand_names.append(str(operand))
+            elif operand_type == OperatorType.MATRIX:
+                var_name = operand.args[0].name
+                index_tuple = operand.args[1:]
+                operand_names.append(self._gen_arr_access_code(
+                    self._var_dict[var_name], index_tuple))
             else:
                 operand_names.append(
                     self._gen_code_expr(operand, file_handler))

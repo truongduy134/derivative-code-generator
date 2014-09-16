@@ -1,4 +1,4 @@
-from exprcodegen import OperatorType, ExprCodeGenerator
+from exprcodegen import OperatorType, ExprCodeGenerator, VariableType
 
 class JavaExprCodeGenerator(ExprCodeGenerator):
     """
@@ -40,7 +40,9 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
                 is_first = False
             else:
                 header += ", "
-            header += "double " + var 
+            dimension_size = len(var.dimension)
+            type_decl = "double" + "[]" * dimension_size
+            header += type_decl + " " + var.name
         header += ") {\n"
         file_handler.write(header)
 
@@ -59,6 +61,31 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
         return_stm += "return " + result_holder_name + ";\n"
         file_handler.write(return_stm)
         file_handler.write("}\n\n")
+
+    def _gen_arr_access_code(
+            self,
+            var_obj,
+            index_tuple):
+        """ Generates Java code for array / matrix element access
+        Args:
+            var_obj : an object containing information about the 
+                      array / matrix variable, such as name, type, dimension
+            index_tuple : a tuple indicating the index of the element accessed
+            file_handler : an output file handler to write the code to
+        Returns:
+            A string representing the code to access array / matrix element
+        """
+        code = var_obj.name;
+        if var_obj.var_type == VariableType.VECTOR:
+            real_ind = 0;
+            for index in index_tuple:
+                if index > 0:
+                    real_ind = index
+            code += "[" + str(real_ind) + "]"
+        else:    
+            for index in index_tuple:
+                code += "[" + str(index) + "]"
+        return code
 
     def _gen_code_operator(
             self,
