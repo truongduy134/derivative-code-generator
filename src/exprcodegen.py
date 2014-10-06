@@ -105,9 +105,9 @@ class ExprCodeGenerator(object):
             var_list,
             sympy_expr,
             func_name=None,
-            temp_prefix=None,
             tab_type=None,
-            tab_size=None):
+            tab_size=None,
+            temp_prefix=None):
         """ Class constructor
         """
         self.var_list = var_list
@@ -221,20 +221,23 @@ class ExprCodeGenerator(object):
         """
         operands = sympy_expr.args
         operand_names = []
-        for operand in operands:
-            operand_type = get_operator_type(operand)
-            if operand_type == OperatorType.NUMBER:
-                operand_names.append(str(operand.evalf()))
-            elif operand_type == OperatorType.SYMBOL:
-                operand_names.append(str(operand))
-            elif operand_type == OperatorType.MATRIX:
-                var_name = operand.args[0].name
-                index_tuple = operand.args[1:]
-                operand_names.append(self._gen_arr_access_code(
-                    self._var_dict[var_name], index_tuple))
-            else:
-                operand_names.append(
-                    self._gen_code_expr(operand, file_handler))
+        if sympy_expr.is_number:
+            operand_names.append(str(sympy_expr.evalf()))
+        else:
+            for operand in operands:
+                operand_type = get_operator_type(operand)
+                if operand_type == OperatorType.NUMBER:
+                    operand_names.append(str(operand.evalf()))
+                elif operand_type == OperatorType.SYMBOL:
+                    operand_names.append(str(operand))
+                elif operand_type == OperatorType.MATRIX:
+                    var_name = operand.args[0].name
+                    index_tuple = operand.args[1:]
+                    operand_names.append(self._gen_arr_access_code(
+                        self._var_dict[var_name], index_tuple))
+                else:
+                    operand_names.append(
+                        self._gen_code_expr(operand, file_handler))
 
         temp_var_name = self._get_nxt_temp_var_name()
         self._gen_code_operator(

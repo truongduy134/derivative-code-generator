@@ -1,6 +1,7 @@
 import argparse
 import sympy
 from javaexprcodegen import JavaExprCodeGenerator
+from javahessiancodegen import JavaHessianCodeGenerator
 from exprcodegen import Variable, VariableType
 from sympy import Symbol, MatrixSymbol, Matrix
 
@@ -39,7 +40,7 @@ def main():
                 expr_str = components[1]
 
     sympy_expr = sympy.sympify(expr_str, locals)
-    code_generator = JavaExprCodeGenerator(var_list, sympy_expr)
+    code_generator = JavaHessianCodeGenerator(var_list, sympy_expr)
     code_generator.gen_code(output_file)
 
 if __name__ == "__main__":
