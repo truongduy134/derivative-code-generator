@@ -31,7 +31,7 @@ class JavaHessianCodeGenerator(HessianCodeGenerator):
         for first in xrange(num_var):
             for second in xrange(first, num_var):
                 derivative = diff(
-                    diff(self.expr, self._expanded_var_list[second]),
+                    diff(self.expr, self._expanded_var_list[second]) + 1,
                     self._expanded_var_list[first])
                 expr_generator = JavaExprCodeGenerator(
                     self.var_list,
