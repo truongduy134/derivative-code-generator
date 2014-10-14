@@ -119,8 +119,12 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
         elif op_type in [OperatorType.ADD_REAL, OperatorType.MUL_REAL]:
             op_char = " + " if op_type == OperatorType.ADD_REAL else " * "
             statement_str += op_char.join(operand_names)
-        else:
-            # Better handling of this case (Throw exception?)
+        elif op_type in (
+            [OperatorType.NUMBER, OperatorType.SYMBOL, OperatorType.MATRIX]):
             statement_str += operand_names[0]
+        else:
+            # Operators in which we do not know how to generate code
+            raise Exception("Cannot generate code for operator %s" % op_type)
+            
         statement_str += ";\n"
         file_handler.write(statement_str)

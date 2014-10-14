@@ -54,6 +54,8 @@ def get_operator_type(sympy_expr):
         op_type : a value of type OperatorType indicating the operation type
             of the root of the current parse tree 
     """
+    #print sympy_expr
+    #print type(sympy_expr)
     if sympy_expr.is_number:
         return OperatorType.NUMBER
 
@@ -220,28 +222,32 @@ class ExprCodeGenerator(object):
             that d = a + b * c 
         """
         operands = sympy_expr.args
+        expr_op_type = get_operator_type(sympy_expr)
         operand_names = []
-        if sympy_expr.is_number:
-            operand_names.append(str(sympy_expr.evalf()))
-        else:
-            for operand in operands:
-                operand_type = get_operator_type(operand)
-                if operand_type == OperatorType.NUMBER:
-                    operand_names.append(str(operand.evalf()))
-                elif operand_type == OperatorType.SYMBOL:
-                    operand_names.append(str(operand))
-                elif operand_type == OperatorType.MATRIX:
-                    var_name = operand.args[0].name
-                    index_tuple = operand.args[1:]
-                    operand_names.append(self._gen_arr_access_code(
-                        self._var_dict[var_name], index_tuple))
-                else:
-                    operand_names.append(
-                        self._gen_code_expr(operand, file_handler))
+        if expr_op_type in (
+            [OperatorType.NUMBER, OperatorType.SYMBOL, OperatorType.MATRIX]):
+            # For these special operator type (e.g. expr = 1, expr = v, 
+            # expr = M), the operand is the expression itself
+            operands = (sympy_expr,)
+        
+        for operand in operands:
+            operand_type = get_operator_type(operand)
+            if operand_type == OperatorType.NUMBER:
+                operand_names.append(str(operand.evalf()))
+            elif operand_type == OperatorType.SYMBOL:
+                operand_names.append(str(operand))
+            elif operand_type == OperatorType.MATRIX:
+                var_name = operand.args[0].name
+                index_tuple = operand.args[1:]
+                operand_names.append(self._gen_arr_access_code(
+                    self._var_dict[var_name], index_tuple))
+            else:
+                operand_names.append(
+                    self._gen_code_expr(operand, file_handler))
 
         temp_var_name = self._get_nxt_temp_var_name()
         self._gen_code_operator(
-            get_operator_type(sympy_expr),
+            expr_op_type,
             operand_names,
             temp_var_name,
             file_handler)
