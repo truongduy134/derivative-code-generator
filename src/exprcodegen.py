@@ -54,8 +54,6 @@ def get_operator_type(sympy_expr):
         op_type : a value of type OperatorType indicating the operation type
             of the root of the current parse tree 
     """
-    #print sympy_expr
-    #print type(sympy_expr)
     if sympy_expr.is_number:
         return OperatorType.NUMBER
 
