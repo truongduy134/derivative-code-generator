@@ -33,7 +33,7 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
         Args:
             file_handler : an output file handler to write the code to
         """
-        header = "double " + self.func_name + "("
+        header = "double %s (" % self.func_name
         is_first = True
         for var in self.var_list:
             if is_first:
@@ -58,7 +58,7 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
             file_handler : an output file handler to write the code to
         """
         return_stm = self._get_indent_string()
-        return_stm += "return " + result_holder_name + ";\n"
+        return_stm += "return %s;\n" % result_holder_name
         file_handler.write(return_stm)
         file_handler.write("}\n\n")
 
@@ -81,10 +81,10 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
             for index in index_tuple:
                 if index > 0:
                     real_ind = index
-            code += "[" + str(real_ind) + "]"
+            code += "[%d]" % real_ind
         else:    
             for index in index_tuple:
-                code += "[" + str(index) + "]"
+                code += "[%d]" % index
         return code
 
     def _gen_code_operator(
@@ -106,16 +106,17 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
                 result = a + b + c 
         """
         statement_str = self._get_indent_string()
-        statement_str += "double " + result_holder_name + " = "
+        statement_str += "double %s = " % result_holder_name
         if op_type == OperatorType.POW_REAL:
-            statement_str += ("Math.pow(" + operand_names[0] + ", " +
-                              operand_names[1] + ")")
+            statement_str += "Math.pow(%s, %s)" % (
+                operand_names[0], operand_names[1])
         elif op_type in JavaExprCodeGenerator.SUPPORT_TRIGO_FUNCS:
-            statement_str += (JavaExprCodeGenerator.SUPPORT_TRIGO_FUNCS[op_type] 
-                              + "(" + operand_names[0] + ")")
+            statement_str += "%s(%s)" % (
+                JavaExprCodeGenerator.SUPPORT_TRIGO_FUNCS[op_type],
+                operand_names[0])
         elif op_type == OperatorType.COT_REAL:
-            statement_str += ("Math.sin(" + operand_names[0] + ") / Math.cos(" +
-                              operand_names[0] + ")")
+            statement_str += "Math.sin(%s) / Math.cos(%s)" % (
+                operand_names[0], operand_names[0])
         elif op_type in [OperatorType.ADD_REAL, OperatorType.MUL_REAL]:
             op_char = " + " if op_type == OperatorType.ADD_REAL else " * "
             statement_str += op_char.join(operand_names)

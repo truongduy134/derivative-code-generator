@@ -46,7 +46,7 @@ class JavaHessianCodeGenerator(HessianCodeGenerator):
         Args:
             file_handler : an output file handler to write the code to
         """
-        header = "double[][] " + self.func_name + "("
+        header = "double[][] %s(" % self.func_name
         is_first = True
         for var in self.var_list:
             if is_first:
@@ -73,16 +73,15 @@ class JavaHessianCodeGenerator(HessianCodeGenerator):
             ' ' * self.tab_size)
         indent = base_indent
 
-        file_handler.write(indent + "double[][] " + temp_mat + " = new " +
-            "double[" + str(num_var) + "][" + str(num_var) + "];\n")
+        file_handler.write((indent + "double[][] %s = new double[%d][%d];\n") %
+            (temp_mat, num_var, num_var))
         for i in xrange(num_var):
             for j in xrange(i, num_var):
-                file_handler.write(indent + temp_mat + "[" + str(i) + "][" +
-                    str(j) + "] = " + self._get_derivative_func_name(i, j) +
-                    "(" + param_list + ");\n")
+                file_handler.write((indent + "%s[%d][%d] = %s(%s);\n") % (
+                    temp_mat, i, j, self._get_derivative_func_name(i, j),
+                    param_list))
                 if i == j:
                     continue
-                file_handler.write(indent + temp_mat + "[" + str(j) + "][" +
-                    str(i) + "] = " + temp_mat + "[" + str(i) + "][" +
-                    str(j) + "];\n")
-        file_handler.write(indent + "return " + temp_mat + ";\n}\n")
+                file_handler.write((indent + "%s[%d][%d] = %s[%d][%d];\n") % (
+                    temp_mat, j, i, temp_mat, i, j))
+        file_handler.write((indent + "return %s;\n}\n") % temp_mat)
