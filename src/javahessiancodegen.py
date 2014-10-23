@@ -73,15 +73,15 @@ class JavaHessianCodeGenerator(HessianCodeGenerator):
             ' ' * self.tab_size)
         indent = base_indent
 
-        file_handler.write((indent + "double[][] %s = new double[%d][%d];\n") %
+        file_handler.write(indent + "double[][] %s = new double[%d][%d];\n" %
             (temp_mat, num_var, num_var))
         for i in xrange(num_var):
             for j in xrange(i, num_var):
-                file_handler.write((indent + "%s[%d][%d] = %s(%s);\n") % (
+                file_handler.write(indent + "%s[%d][%d] = %s(%s);\n" % (
                     temp_mat, i, j, self._get_derivative_func_name(i, j),
                     param_list))
                 if i == j:
                     continue
-                file_handler.write((indent + "%s[%d][%d] = %s[%d][%d];\n") % (
+                file_handler.write(indent + "%s[%d][%d] = %s[%d][%d];\n" % (
                     temp_mat, j, i, temp_mat, i, j))
         file_handler.write((indent + "return %s;\n}\n") % temp_mat)
