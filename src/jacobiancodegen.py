@@ -1,9 +1,9 @@
 from abc import ABCMeta, abstractmethod
 from exprcodegen import IndentType
 
-class HessianCodeGenerator(object):
+class JacobianCodeGenerator(object):
     """
-    This is an abstract class for generating code to compute Hessian matrix
+    This is an abstract class for generating code to compute Jacobian vector
     for an input mathematical multivariate expression
 
     Public object member attributes:
@@ -22,7 +22,7 @@ class HessianCodeGenerator(object):
     __metaclass__ = ABCMeta
 
     DEFAULT_TAB_SIZE = 2
-    DEFAULT_FUNC_NAME = "hessian"
+    DEFAULT_FUNC_NAME = "jacobian"
     DEFAULT_DERIVATIVE_NAME = "partialDerivative"
 
     def __init__(
@@ -37,7 +37,7 @@ class HessianCodeGenerator(object):
         self.var_list = var_list
         self.expr = sympy_expr
         if func_name is None:
-            self.func_name = HessianCodeGenerator.DEFAULT_FUNC_NAME
+            self.func_name = JacobianCodeGenerator.DEFAULT_FUNC_NAME
         else:
             self.func_name = func_name
         if tab_type is None:
@@ -45,7 +45,7 @@ class HessianCodeGenerator(object):
         else:
             self.tab_type = tab_type
         if tab_size is None:
-            self.tab_size = HessianCodeGenerator.DEFAULT_TAB_SIZE
+            self.tab_size = JacobianCodeGenerator.DEFAULT_TAB_SIZE
         else:
             self.tab_size = tab_size
         self._diff_code_generator = self._get_derivative_code_generator()
@@ -59,8 +59,8 @@ class HessianCodeGenerator(object):
         pass
 
     @abstractmethod
-    def _gen_hessian_code(self, file_handler):
-        """ Generates code for function to compute Hessian matrix
+    def _gen_jacobian_code(self, file_handler):
+        """ Generates code for function to compute Jacobian vector
         Subclass should implement this method to generate function code in a
         specific programming language
         Args:
@@ -73,5 +73,5 @@ class HessianCodeGenerator(object):
         Args:
             file_handler : an output file handler to write the code to
         """
-        self._diff_code_generator.gen_code_all_second_order(file_handler)
-        self._gen_hessian_code(file_handler)
+        self._diff_code_generator.gen_code_all_first_order(file_handler)
+        self._gen_jacobian_code(file_handler)

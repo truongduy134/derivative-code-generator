@@ -174,4 +174,3 @@ class DerivativeCodeGenerator(object):
         for first_var_ind in xrange(self.get_num_expanded_var()):
             for second_var_ind in xrange(self.get_num_expanded_var()):
                 self.gen_code(file_handler, first_var_ind, second_var_ind, True)
-

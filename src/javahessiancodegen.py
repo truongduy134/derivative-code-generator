@@ -51,7 +51,7 @@ class JavaHessianCodeGenerator(HessianCodeGenerator):
         file_handler.write(header)
 
     def _gen_hessian_code(self, file_handler):
-        """ Generates Java code for functions to compute Hessian matrix
+        """ Generates Java code for function to compute Hessian matrix
         Args:
             file_handler : an output file handler to write the code to
         """
@@ -70,7 +70,8 @@ class JavaHessianCodeGenerator(HessianCodeGenerator):
             for j in xrange(i, num_var):
                 file_handler.write(indent + "%s[%d][%d] = %s(%s);\n" % (
                     temp_mat, i, j,
-                    self._diff_code_generator.get_derivative_func_name(i, j),
+                    self._diff_code_generator.get_derivative_func_name(
+                        i, j, True),
                     param_list))
                 if i == j:
                     continue

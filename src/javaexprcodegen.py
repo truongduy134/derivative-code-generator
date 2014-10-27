@@ -33,7 +33,7 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
         Args:
             file_handler : an output file handler to write the code to
         """
-        header = "double %s (" % self.func_name
+        header = "double %s(" % self.func_name
         is_first = True
         for var in self.var_list:
             if is_first:
