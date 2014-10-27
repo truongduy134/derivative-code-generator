@@ -17,6 +17,9 @@ class OperatorType(object):
     TAN_REAL = 9
     COT_REAL = 10
 
+    # An array containing singleton operator type
+    SINGLETON_OP_TYPE = [NUMBER, MATRIX, SYMBOL]
+
 class IndentType(object):
     """ An enum class for identation types (by space or by tab)
     """
@@ -31,13 +34,13 @@ class VariableType(object):
     MATRIX = 2
 
 class Variable(object):
-    """ 
+    """
     A class that encapsulates variable information
 
     Public object member attributes:
         name : A string representing name of a variable
         var_type : A VariableType enum value indicating variable type
-        dimension : A tuple indicating dimension of a variable 
+        dimension : A tuple indicating dimension of a variable
     """
 
     def __init__(self, name, var_type, dimension):
@@ -56,7 +59,7 @@ def get_operator_type(sympy_expr):
 
     Returns:
         op_type : a value of type OperatorType indicating the operation type
-            of the root of the current parse tree 
+            of the root of the current parse tree
     """
     if sympy_expr.is_number:
         return OperatorType.NUMBER
@@ -189,7 +192,7 @@ class ExprCodeGenerator(object):
         Example:
             self._gen_code_operator(OperatorType.ADD_REAL, ['a', 'b', 'c'],
                 'result', outfile) generates code for the statement
-                result = a + b + c 
+                result = a + b + c
         """
         pass
 
@@ -211,7 +214,7 @@ class ExprCodeGenerator(object):
         Subclass should implement this method to generate code in a specific
         programming language
         Args:
-            var_obj : an object containing information about the 
+            var_obj : an object containing information about the
                       array / matrix variable, such as name, type, dimension
             index_tuple : a tuple indicating the index of the element accessed
         Returns:
@@ -230,17 +233,17 @@ class ExprCodeGenerator(object):
         Example:
             d = self._gen_code_expr(a + b * c, file_handler) generates code to
             compute the expression a + b * c; and d is the variable name such
-            that d = a + b * c 
+            that d = a + b * c
         """
         operands = sympy_expr.args
         expr_op_type = get_operator_type(sympy_expr)
         operand_names = []
-        if expr_op_type in (
-            [OperatorType.NUMBER, OperatorType.SYMBOL, OperatorType.MATRIX]):
-            # For these special operator type (e.g. expr = 1, expr = v, 
+
+        if expr_op_type in OperatorType.SINGLETON_OP_TYPE:
+            # For these special operator type (e.g. expr = 1, expr = v,
             # expr = M), the operand is the expression itself
             operands = (sympy_expr,)
-        
+
         for operand in operands:
             operand_type = get_operator_type(operand)
             if operand_type == OperatorType.NUMBER:
@@ -270,5 +273,5 @@ class ExprCodeGenerator(object):
             file_handler : an output file handler to write the code to
         """
         self._gen_func_declaration(file_handler)
-        final_var_name = self._gen_code_expr(self.expr, file_handler) 
-        self._gen_return_code(final_var_name, file_handler) 
+        final_var_name = self._gen_code_expr(self.expr, file_handler)
+        self._gen_return_code(final_var_name, file_handler)
