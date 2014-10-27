@@ -9,7 +9,7 @@ class HessianCodeGenerator(object):
 
     Public object member attributes:
         var_list : A list of Variable objects
-        sympy_expr : A sympy symbolic expression
+        expr : A sympy symbolic expression
         func_name : A string representing name of the generated Hessian method
         tab_type : An IndentType enum indicating the generated code should be
                    indented by tab or space
@@ -17,10 +17,7 @@ class HessianCodeGenerator(object):
                    indentation type is TAB
 
     Protected object member attributes:
-        _expanded_var_list : The expanded var list. 
-            For example, if v is a variable matrix of size  1 x 3, we add 
-            v[0, 1], v[0, 2], v[0, 3] to the list. The hessian matrix is based 
-            on variables in this expanded list
+        _diff_code_generator : The code generator for partial derivatives
     """
 
     __metaclass__ = ABCMeta
@@ -52,44 +49,11 @@ class HessianCodeGenerator(object):
             self.tab_size = HessianCodeGenerator.DEFAULT_TAB_SIZE
         else:
             self.tab_size = tab_size
-        # Expand the var list. For example, if v is a variable matrix of size 
-        # 1 x 3, we add v[0, 1], v[0, 2], v[0, 3] to the list. The hessian
-        # matrix is based on variables in this expanded list
-        self._expanded_var_list = []
-        for var_obj in self.var_list:
-            if var_obj.var_type == VariableType.NUMBER:
-                # Single symbol case
-                self._expanded_var_list.append(Symbol(var_obj.name))
-            else:
-                # Matrix case
-                shape = var_obj.dimension
-                if var_obj.var_type == VariableType.VECTOR:
-                    shape = (shape[0], 1)
-                var_mat = Matrix(MatrixSymbol(var_obj.name, shape[0], shape[1]))
-                for i in xrange(shape[0]):
-                    for j in xrange(shape[1]):
-                        self._expanded_var_list.append(var_mat[i, j])
-
-    def _get_derivative_func_name(self, first_ind, second_ind):
-        """ Gets the name for the function to compute the second-order partial
-        derivative function
-        Args:
-            first_ind : an integer indicating the index of the first variable
-                        for differentiation
-            second_ind : an integer indicating the index of the second variable
-                         for differentiation
-        """
-        return (HessianCodeGenerator.DEFAULT_DERIVATIVE_NAME +
-            "_" + str(first_ind) + "_" + str(second_ind))
+        self._diff_code_generator = self._get_derivative_code_generator()
 
     @abstractmethod
-    def _gen_derivative_code(self, file_handler):
-        """ Generates code for functions to compute partial derivatives of
-        order 2 needed for Hessian matrix
-        Subclass should implement this method to generate function code in a
-        specific programming language
-        Args:
-            file_handler : an output file handler to write the code to
+    def _get_derivative_code_generator(self):
+        """ Returns the derivative code generator in a specific language
         """
         pass
 
@@ -108,5 +72,5 @@ class HessianCodeGenerator(object):
         Args:
             file_handler : an output file handler to write the code to
         """
-        self._gen_derivative_code(file_handler)
+        self._diff_code_generator.gen_code_all_second_order(file_handler)
         self._gen_hessian_code(file_handler)

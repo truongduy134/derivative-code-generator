@@ -92,7 +92,7 @@ class ExprCodeGenerator(object):
 
     Public object member attributes:
         var_list : A list of Variable objects
-        sympy_expr : A sympy symbolic expression
+        expr : A sympy symbolic expression
         func_name : A string representing function name
         tab_type : An IndentType enum indicating the generated code should be
                    indented by tab or space

@@ -2,6 +2,7 @@ from sympy import diff
 from hessiancodegen import HessianCodeGenerator
 from exprcodegen import IndentType
 from javaexprcodegen import JavaExprCodeGenerator
+from javaderivativecodegen import JavaDerivativeCodeGenerator
 
 class JavaHessianCodeGenerator(HessianCodeGenerator):
     """
@@ -21,25 +22,15 @@ class JavaHessianCodeGenerator(HessianCodeGenerator):
         HessianCodeGenerator.__init__(
             self, var_list, sympy_expr, func_name, tab_type, tab_size)
 
-    def _gen_derivative_code(self, file_handler):
-        """ Generates Java code for functions to compute partial derivatives of
-        order 2 needed for Hessian matrix
-        Args:
-            file_handler : an output file handler to write the code to
+    def _get_derivative_code_generator(self):
+        """ Returns the derivative code generator in Java
         """
-        num_var = len(self._expanded_var_list)
-        for first in xrange(num_var):
-            for second in xrange(first, num_var):
-                derivative = diff(
-                    diff(self.expr, self._expanded_var_list[second]) + 1,
-                    self._expanded_var_list[first])
-                expr_generator = JavaExprCodeGenerator(
-                    self.var_list,
-                    derivative,
-                    self._get_derivative_func_name(first, second),
-                    self.tab_type,
-                    self.tab_size)
-                expr_generator.gen_code(file_handler)
+        return JavaDerivativeCodeGenerator(
+            self.var_list,
+            self.expr,
+            HessianCodeGenerator.DEFAULT_DERIVATIVE_NAME,
+            self.tab_type,
+            self.tab_size)
 
     def __gen_hessian_declaration(self, file_handler):
         """ Generates Java code for Hessian function declaration
@@ -66,7 +57,7 @@ class JavaHessianCodeGenerator(HessianCodeGenerator):
         """
         self.__gen_hessian_declaration(file_handler)
         # Function body
-        num_var = len(self._expanded_var_list)
+        num_var = self._diff_code_generator.get_num_expanded_var()
         param_list = ", ".join([var.name for var in self.var_list])
         temp_mat = "__temp"
         base_indent = "\t" if self.tab_type == IndentType.BY_TAB else (
@@ -78,7 +69,8 @@ class JavaHessianCodeGenerator(HessianCodeGenerator):
         for i in xrange(num_var):
             for j in xrange(i, num_var):
                 file_handler.write(indent + "%s[%d][%d] = %s(%s);\n" % (
-                    temp_mat, i, j, self._get_derivative_func_name(i, j),
+                    temp_mat, i, j,
+                    self._diff_code_generator.get_derivative_func_name(i, j),
                     param_list))
                 if i == j:
                     continue
