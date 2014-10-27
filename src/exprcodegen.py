@@ -31,14 +31,18 @@ class VariableType(object):
     MATRIX = 2
 
 class Variable(object):
-    """ A class that encapsulates variable information
+    """ 
+    A class that encapsulates variable information
+
+    Public object member attributes:
+        name : A string representing name of a variable
+        var_type : A VariableType enum value indicating variable type
+        dimension : A tuple indicating dimension of a variable 
     """
-    # Class field
-    name = ""
-    var_type = VariableType.NUMBER
-    dimension = ()
 
     def __init__(self, name, var_type, dimension):
+        """ Class constructor
+        """
         self.name = name
         self.var_type = var_type
         self.dimension = dimension
@@ -82,6 +86,25 @@ class ExprCodeGenerator(object):
     """
     This is an abstract class for generating code for an input
     mathematical expression
+
+    Public object member attributes:
+        var_list : A list of Variable objects
+        sympy_expr : A sympy symbolic expression
+        func_name : A string representing function name
+        tab_type : An IndentType enum indicating the generated code should be
+                   indented by tab or space
+        tab_size : A integer indicating the tab size. The value is ignored if
+                   indentation type is TAB
+        temp_var_prefix : A string indicating the name that is used as a prefix
+                   for temporary variables in code generation
+
+    Protected object member attributes:
+        _var_dict : A dictionary that maps variable name to the Variable
+                    structure itself
+
+    Private object member attributes:
+        __num_temp_var_used : An integer indicating the number of temporary
+                              variables used so far in code generation
     """
 
     __metaclass__ = ABCMeta
@@ -89,16 +112,6 @@ class ExprCodeGenerator(object):
     DEFAULT_TAB_SIZE = 2
     DEFAULT_TEMP_NAME = "__temp"
     DEFAULT_FUNC_NAME = "evaluate"
-
-    # Class field
-    tab_type = IndentType.BY_SPACE
-    tab_size = DEFAULT_TAB_SIZE     # Used in case tab type is space
-    expr = ""   # A sympy math expression
-    _var_dict = {}
-    var_list = []
-    temp_var_prefix = DEFAULT_TEMP_NAME
-    func_name = DEFAULT_FUNC_NAME
-    __num_temp_var_used = 0
 
     def __init__(
             self,

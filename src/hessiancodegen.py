@@ -6,6 +6,21 @@ class HessianCodeGenerator(object):
     """
     This is an abstract class for generating code to compute Hessian matrix
     for an input mathematical multivariate expression
+
+    Public object member attributes:
+        var_list : A list of Variable objects
+        sympy_expr : A sympy symbolic expression
+        func_name : A string representing name of the generated Hessian method
+        tab_type : An IndentType enum indicating the generated code should be
+                   indented by tab or space
+        tab_size : A integer indicating the tab size. The value is ignored if
+                   indentation type is TAB
+
+    Protected object member attributes:
+        _expanded_var_list : The expanded var list. 
+            For example, if v is a variable matrix of size  1 x 3, we add 
+            v[0, 1], v[0, 2], v[0, 3] to the list. The hessian matrix is based 
+            on variables in this expanded list
     """
 
     __metaclass__ = ABCMeta
@@ -13,14 +28,6 @@ class HessianCodeGenerator(object):
     DEFAULT_TAB_SIZE = 2
     DEFAULT_FUNC_NAME = "hessian"
     DEFAULT_DERIVATIVE_NAME = "partialDerivative"
-
-    # Class field
-    tab_type = IndentType.BY_SPACE
-    tab_size = DEFAULT_TAB_SIZE
-    expr = ""   # A sympy math expression
-    _expanded_var_list = []
-    var_list = []
-    func_name = DEFAULT_FUNC_NAME
 
     def __init__(
             self,
