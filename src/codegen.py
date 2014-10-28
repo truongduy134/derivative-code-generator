@@ -4,7 +4,7 @@ from javaexprcodegen import JavaExprCodeGenerator
 from javahessiancodegen import JavaHessianCodeGenerator
 from javajacobiancodegen import JavaJacobianCodeGenerator
 from exprcodegen import Variable, VariableType
-from codegenutil import FileCodeWriter
+from filecodewriter import FileCodeWriter
 from sympy import Symbol, MatrixSymbol, Matrix
 
 description = """
