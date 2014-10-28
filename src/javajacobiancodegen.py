@@ -1,6 +1,6 @@
 from jacobiancodegen import JacobianCodeGenerator
 from javaderivativecodegen import JavaDerivativeCodeGenerator
-from exprcodegen import IndentType, VariableType
+from exprcodegen import VariableType
 
 class JavaJacobianCodeGenerator(JacobianCodeGenerator):
     """
@@ -13,13 +13,10 @@ class JavaJacobianCodeGenerator(JacobianCodeGenerator):
             self,
             var_list,
             sympy_expr,
-            func_name=None,
-            tab_type=None,
-            tab_size=None):
+            func_name=None):
         """ Class constructor
         """
-        JacobianCodeGenerator.__init__(
-            self, var_list, sympy_expr, func_name, tab_type, tab_size)
+        JacobianCodeGenerator.__init__(self, var_list, sympy_expr, func_name)
 
     def _get_derivative_code_generator(self):
         """ Returns the derivative code generator in Java
@@ -27,14 +24,13 @@ class JavaJacobianCodeGenerator(JacobianCodeGenerator):
         return JavaDerivativeCodeGenerator(
             self.var_list,
             self.expr,
-            JacobianCodeGenerator.DEFAULT_DERIVATIVE_NAME,
-            self.tab_type,
-            self.tab_size)
+            JacobianCodeGenerator.DEFAULT_DERIVATIVE_NAME)
 
     def __gen_jacobian_declaration(self, file_handler):
         """ Generates Java code for Jacobian function declaration
         Args:
-            file_handler : an output file handler to write the code to
+            file_handler : an instance of FileCodeWriter that handles writing
+                           generated code to a file.
         """
         param_str = ""
         is_first = True
@@ -54,7 +50,8 @@ class JavaJacobianCodeGenerator(JacobianCodeGenerator):
     def _gen_jacobian_code(self, file_handler):
         """ Generates Java code for function to compute Jacobian vector
         Args:
-            file_handler : an output file handler to write the code to
+            file_handler : an instance of FileCodeWriter that handles writing
+                           generated code to a file.
         """
         self.__gen_jacobian_declaration(file_handler)
         # Function body
@@ -63,16 +60,16 @@ class JavaJacobianCodeGenerator(JacobianCodeGenerator):
         num_var = self._diff_code_generator.get_num_expanded_var()
         param_list = ", ".join([var.name for var in self.var_list])
         temp_vector = "__temp"
-        base_indent = "\t" if self.tab_type == IndentType.BY_TAB else (
-            ' ' * self.tab_size)
-        indent = base_indent
 
-        file_handler.write(indent + "double[] %s = new double[%d];\n" %
-            (temp_vector, num_var))
+        file_handler.tab()
+        file_handler.write("double[] %s = new double[%d];\n" % (
+            temp_vector, num_var))
         for i in xrange(num_var):
-            file_handler.write(indent + "%s[%d] = %s(%s);\n" % (
+            file_handler.write("%s[%d] = %s(%s);\n" % (
                 temp_vector, i,
                 self._diff_code_generator.get_derivative_func_name(
                     i, None, True),
                 param_list))
-        file_handler.write((indent + "return %s;\n}\n") % temp_vector)
+        file_handler.write("return %s;\n" % temp_vector)
+        file_handler.untab()
+        file_handler.write("}\n")

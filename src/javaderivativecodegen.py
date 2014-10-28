@@ -15,13 +15,11 @@ class JavaDerivativeCodeGenerator(DerivativeCodeGenerator):
             self,
             var_list,
             sympy_expr,
-            base_func_name=None,
-            tab_type=None,
-            tab_size=None):
+            base_func_name=None):
         """ Class constructor
         """
         DerivativeCodeGenerator.__init__(
-            self, var_list, sympy_expr, base_func_name, tab_type, tab_size)
+            self, var_list, sympy_expr, base_func_name)
 
     def gen_code(
             self,
@@ -31,7 +29,8 @@ class JavaDerivativeCodeGenerator(DerivativeCodeGenerator):
             auto_add_suffix=True):
         """ Generates Java code for function to compute a partial derivative
         Args:
-            file_handler : an output file handler to write the code to
+            file_handler : an instance of FileCodeWriter that handles writing
+                           generated code to a file.
             first_ind : an integer indicating the index of the first variable
                         for differentiation
             second_ind : an integer indicating the index of the second variable
@@ -54,9 +53,5 @@ class JavaDerivativeCodeGenerator(DerivativeCodeGenerator):
         func_name = self.get_derivative_func_name(
             first_var_ind, second_var_ind, auto_add_suffix)
         expr_generator = JavaExprCodeGenerator(
-            self.var_list,
-            derivative_expr,
-            func_name,
-            self.tab_type,
-            self.tab_size)
+            self.var_list, derivative_expr, func_name)
         expr_generator.gen_code(file_handler)

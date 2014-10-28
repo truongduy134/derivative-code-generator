@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from sympy import Matrix, MatrixSymbol, Symbol, diff
-from exprcodegen import IndentType, VariableType, Variable
+from exprcodegen import VariableType, Variable
 
 def first_order_derivative(expr, first_var):
     """ Gets the first-order partial derivative of the given sympy expression
@@ -54,7 +54,6 @@ class DerivativeCodeGenerator(object):
 
     __metaclass__ = ABCMeta
 
-    DEFAULT_TAB_SIZE = 2
     DEFAULT_BASE_FUNC_NAME = "partialDerivative"
 
     def __init__(
@@ -72,14 +71,6 @@ class DerivativeCodeGenerator(object):
             self.base_func_name = DEFAULT_BASE_FUNC_NAME
         else:
             self.base_func_name = base_func_name
-        if tab_type is None:
-            self.tab_type = IndentType.BY_SPACE
-        else:
-            self.tab_type = tab_type
-        if tab_size is None:
-            self.tab_size = DerivativeCodeGenerator.DEFAULT_TAB_SIZE
-        else:
-            self.tab_size = tab_size
         # Expand the var list. For example, if v is a variable matrix of size 
         # 1 x 3, we add v[0, 1], v[0, 2], v[0, 3] to the list. The hessian
         # matrix is based on variables in this expanded list
@@ -140,7 +131,8 @@ class DerivativeCodeGenerator(object):
             auto_add_suffix=True):
         """ Generates code for function to compute a partial derivative
         Args:
-            file_handler : an output file handler to write the code to
+            file_handler : an instance of FileCodeWriter that handles writing
+                           generated code to a file.
             first_ind : an integer indicating the index of the first variable
                         for differentiation
             second_ind : an integer indicating the index of the second variable
@@ -159,7 +151,8 @@ class DerivativeCodeGenerator(object):
             for each derivative function, its name is self.base_func_name
             followed by the index of the variable used in differentiation
         Args:
-            file_handler : an output file handler to write the code to
+            file_handler : an instance of FileCodeWriter that handles writing
+                           generated code to a file.
         """
         for var_ind in xrange(self.get_num_expanded_var()):
             self.gen_code(file_handler, var_ind, None, True)
@@ -169,7 +162,8 @@ class DerivativeCodeGenerator(object):
             for each derivative function, its name is self.base_func_name
             followed by indices of two variables used in differentiation
         Args:
-            file_handler : an output file handler to write the code to
+            file_handler : an instance of FileCodeWriter that handles writing
+                           generated code to a file.
         """
         for first_var_ind in xrange(self.get_num_expanded_var()):
             for second_var_ind in xrange(self.get_num_expanded_var()):

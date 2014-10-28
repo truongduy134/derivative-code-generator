@@ -17,21 +17,19 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
             var_list,
             sympy_expr,
             func_name=None,
-            tab_type=None,
-            tab_size=None,
             temp_prefix=None):
         """ Constructor
         """
         ExprCodeGenerator.__init__(
-            self, var_list, sympy_expr, func_name, tab_type, tab_size,
-            temp_prefix)
+            self, var_list, sympy_expr, func_name, temp_prefix)
     
     def _gen_func_declaration(
             self,
             file_handler):
         """ Generates Java code for function declaration
         Args:
-            file_handler : an output file handler to write the code to
+            file_handler : an instance of FileCodeWriter that handles writing
+                           generated code to a file.
         """
         header = "double %s(" % self.func_name
         is_first = True
@@ -55,11 +53,13 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
         Args:
             result_holder_name : a string for a variable name that holds the
                 final result of the whole expression
-            file_handler : an output file handler to write the code to
+            file_handler : an instance of FileCodeWriter that handles writing
+                           generated code to a file.
         """
-        return_stm = self._get_indent_string()
-        return_stm += "return %s;\n" % result_holder_name
+        return_stm = "return %s;\n" % result_holder_name
+        file_handler.tab()
         file_handler.write(return_stm)
+        file_handler.untab()
         file_handler.write("}\n\n")
 
     def _gen_arr_access_code(
@@ -71,7 +71,6 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
             var_obj : an object containing information about the 
                       array / matrix variable, such as name, type, dimension
             index_tuple : a tuple indicating the index of the element accessed
-            file_handler : an output file handler to write the code to
         Returns:
             A string representing the code to access array / matrix element
         """
@@ -99,14 +98,14 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
             operand_names : a list of strings of operand names
             result_holder_name : a string for a variable name that holds the
                 final result
-            file_handler : an output file handler to write the code to
+            file_handler : an instance of FileCodeWriter that handles writing
+                           generated code to a file.
         Example:
             self._gen_code_operator(OperatorType.ADD_REAL, ['a', 'b', 'c'],
                 'result', outfile) generates code for the statement
                 result = a + b + c 
         """
-        statement_str = self._get_indent_string()
-        statement_str += "double %s = " % result_holder_name
+        statement_str = "double %s = " % result_holder_name
         if op_type == OperatorType.POW_REAL:
             statement_str += "Math.pow(%s, %s)" % (
                 operand_names[0], operand_names[1])

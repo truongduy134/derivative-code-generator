@@ -4,6 +4,7 @@ from javaexprcodegen import JavaExprCodeGenerator
 from javahessiancodegen import JavaHessianCodeGenerator
 from javajacobiancodegen import JavaJacobianCodeGenerator
 from exprcodegen import Variable, VariableType
+from codegenutil import FileCodeWriter
 from sympy import Symbol, MatrixSymbol, Matrix
 
 description = """
@@ -16,7 +17,7 @@ def main():
     arg_parser.parse_args()
 
     input_file = open("input.txt", "r")
-    output_file = open("output.java", "w")
+    output_file = FileCodeWriter("output.java")
 
     expr_str = ""
     var_list = []

@@ -20,12 +20,6 @@ class OperatorType(object):
     # An array containing singleton operator type
     SINGLETON_OP_TYPE = [NUMBER, MATRIX, SYMBOL]
 
-class IndentType(object):
-    """ An enum class for identation types (by space or by tab)
-    """
-    BY_SPACE = 0
-    BY_TAB = 1
-
 class VariableType(object):
     """ An enum class for variable types (number, vector, or matrix)
     """
@@ -94,10 +88,6 @@ class ExprCodeGenerator(object):
         var_list : A list of Variable objects
         expr : A sympy symbolic expression
         func_name : A string representing function name
-        tab_type : An IndentType enum indicating the generated code should be
-                   indented by tab or space
-        tab_size : A integer indicating the tab size. The value is ignored if
-                   indentation type is TAB
         temp_var_prefix : A string indicating the name that is used as a prefix
                    for temporary variables in code generation
 
@@ -112,7 +102,6 @@ class ExprCodeGenerator(object):
 
     __metaclass__ = ABCMeta
 
-    DEFAULT_TAB_SIZE = 2
     DEFAULT_TEMP_NAME = "__temp"
     DEFAULT_FUNC_NAME = "evaluate"
 
@@ -121,8 +110,6 @@ class ExprCodeGenerator(object):
             var_list,
             sympy_expr,
             func_name=None,
-            tab_type=None,
-            tab_size=None,
             temp_prefix=None):
         """ Class constructor
         """
@@ -136,11 +123,6 @@ class ExprCodeGenerator(object):
             self.temp_var_prefix = ExprCodeGenerator.DEFAULT_TEMP_NAME
         else:
             self.temp_var_prefix = temp_prefix
-        self.tab_type = IndentType.BY_SPACE if tab_type is None else tab_type
-        if tab_size is None:
-            self.tab_size = ExprCodeGenerator.DEFAULT_TAB_SIZE
-        else:
-            self.tab_size = tab_size
         self.__num_temp_var_used = 0
         self._var_dict = {var_obj.name: var_obj for var_obj in self.var_list}
 
@@ -154,22 +136,14 @@ class ExprCodeGenerator(object):
         self.__num_temp_var_used += 1
         return next_name
 
-    def _get_indent_string(self):
-        """ Gets indentation string for a statement
-        Returns:
-            a string contains indentation characters
-        """
-        if self.tab_type == IndentType.BY_TAB:
-            return "\t"
-        return ' ' * self.tab_size
-
     @abstractmethod
     def _gen_func_declaration(self, file_handler):
         """ Generates code for function declaration
         Subclass should implement this method to generate function
         declaration (prototype) in a specific programming language
         Args:
-            file_handler : an output file handler to write the code to
+            file_handler : an instance of FileCodeWriter that handles writing
+                           generated code to a file.
         """
         pass
 
@@ -188,7 +162,8 @@ class ExprCodeGenerator(object):
             operand_names : a list of strings of operand names
             result_holder_name : a string for a variable name that holds the
                 final result
-            file_handler : an output file handler to write the code to
+            file_handler : an instance of FileCodeWriter that handles writing
+                           generated code to a file.
         Example:
             self._gen_code_operator(OperatorType.ADD_REAL, ['a', 'b', 'c'],
                 'result', outfile) generates code for the statement
@@ -204,7 +179,8 @@ class ExprCodeGenerator(object):
         Args:
             result_holder_name : a string for a variable name that holds the
                 final result of the whole expression
-            file_handler : an output file handler to write the code to
+            file_handler : an instance of FileCodeWriter that handles writing
+                           generated code to a file.
         """
         pass
 
@@ -226,7 +202,8 @@ class ExprCodeGenerator(object):
         """ Generates code for a function to evaluate input expression
         Args:
             sympy_expr : a sympy expression that needs code generation
-            file_handler : an output file handler to write the code to
+            file_handler : an instance of FileCodeWriter that handles writing
+                           generated code to a file.
         Returns:
             A string representing the name of the variable holding the final
             result when evaluting the expression
@@ -270,8 +247,11 @@ class ExprCodeGenerator(object):
     def gen_code(self, file_handler):
         """ Generates code for a function to evaluate the input expression
         Args:
-            file_handler : an output file handler to write the code to
+            file_handler : an instance of FileCodeWriter that handles writing
+                           generated code to a file.
         """
         self._gen_func_declaration(file_handler)
+        file_handler.tab()
         final_var_name = self._gen_code_expr(self.expr, file_handler)
+        file_handler.untab()
         self._gen_return_code(final_var_name, file_handler)
