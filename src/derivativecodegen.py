@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from sympy import Matrix, MatrixSymbol, Symbol, diff
-from exprcodegen import VariableType, Variable
+from exprcodegen import VariableType
 
 def first_order_derivative(expr, first_var):
     """ Gets the first-order partial derivative of the given sympy expression
@@ -10,7 +10,7 @@ def first_order_derivative(expr, first_var):
 
     Returns:
         diff_expr : A sympy symbolic expression which is the first-order
-                    partial derivative of the input expression  
+                    partial derivative of the input expression
     """
     return diff(expr + 1, first_var)
 
@@ -24,7 +24,7 @@ def second_order_derivative(expr, first_var, second_var):
 
     Returns:
         diff_expr : A sympy symbolic expression which is the second-order
-                    partial derivative of the input expression  
+                    partial derivative of the input expression
     """
     return first_order_derivative(
         first_order_derivative(expr, first_var),
@@ -40,15 +40,14 @@ class DerivativeCodeGenerator(object):
         expr : A sympy symbolic expression to be differentiated
         base_func_name : A string representing name (with possible suffices)
                          of the generated partial derivative method
-        tab_type : An IndentType enum indicating the generated code should be
-                   indented by tab or space
-        tab_size : A integer indicating the tab size. The value is ignored if
-                   indentation type is TAB
+        modifier_list : A list of strings indicating modifiers for the
+                        derivative method / function (such as static, private,
+                        public, etc.)
 
     Protected object member attributes:
-        _expanded_var_list : The expanded var list. 
-            For example, if v is a variable matrix of size  1 x 3, we add 
-            v[0, 1], v[0, 2], v[0, 3] to the list. The hessian matrix is based 
+        _expanded_var_list : The expanded var list.
+            For example, if v is a variable matrix of size  1 x 3, we add
+            v[0, 1], v[0, 2], v[0, 3] to the list. The hessian matrix is based
             on variables in this expanded list
     """
 
@@ -61,17 +60,20 @@ class DerivativeCodeGenerator(object):
             var_list,
             sympy_expr,
             base_func_name=None,
-            tab_type=None,
-            tab_size=None):
+            modifier_list=None):
         """ Class constructor
         """
         self.var_list = var_list
         self.expr = sympy_expr
         if base_func_name is None:
-            self.base_func_name = DEFAULT_BASE_FUNC_NAME
+            self.base_func_name = DerivativeCodeGenerator.DEFAULT_BASE_FUNC_NAME
         else:
             self.base_func_name = base_func_name
-        # Expand the var list. For example, if v is a variable matrix of size 
+        if modifier_list is None:
+            self.modifier_list = []
+        else:
+            self.modifier_list = modifier_list
+        # Expand the var list. For example, if v is a variable matrix of size
         # 1 x 3, we add v[0, 1], v[0, 2], v[0, 3] to the list. The hessian
         # matrix is based on variables in this expanded list
         self._expanded_var_list = []
@@ -108,7 +110,7 @@ class DerivativeCodeGenerator(object):
                          first-order derivative)
             auto_add_suffix : a boolean variable indicating a suffix should be
                 added to method name. If it is false, method name is the
-                same as self.base_func_name. If it is true, method name is 
+                same as self.base_func_name. If it is true, method name is
                 self.base_func_name followed by first_var_ind, and
                 second_var_ind (if it is not None)
 
@@ -140,7 +142,7 @@ class DerivativeCodeGenerator(object):
                          first-order derivative)
             auto_add_suffix : a boolean variable indicating a suffix should be
                 added to method name. If it is false, method name is the
-                same as self.base_func_name. If it is true, method name is 
+                same as self.base_func_name. If it is true, method name is
                 self.base_func_name followed by first_var_ind, and
                 second_var_ind (if it is not None)
         """

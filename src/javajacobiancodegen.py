@@ -1,6 +1,6 @@
+import codegenutil
 from jacobiancodegen import JacobianCodeGenerator
 from javaderivativecodegen import JavaDerivativeCodeGenerator
-from exprcodegen import VariableType
 
 class JavaJacobianCodeGenerator(JacobianCodeGenerator):
     """
@@ -13,10 +13,12 @@ class JavaJacobianCodeGenerator(JacobianCodeGenerator):
             self,
             var_list,
             sympy_expr,
-            func_name=None):
+            func_name=None,
+            modifier_list=None):
         """ Class constructor
         """
-        JacobianCodeGenerator.__init__(self, var_list, sympy_expr, func_name)
+        JacobianCodeGenerator.__init__(
+            self, var_list, sympy_expr, func_name, modifier_list)
 
     def _get_derivative_code_generator(self):
         """ Returns the derivative code generator in Java
@@ -24,7 +26,8 @@ class JavaJacobianCodeGenerator(JacobianCodeGenerator):
         return JavaDerivativeCodeGenerator(
             self.var_list,
             self.expr,
-            JacobianCodeGenerator.DEFAULT_DERIVATIVE_NAME)
+            JacobianCodeGenerator.DEFAULT_DERIVATIVE_NAME,
+            self.modifier_list)
 
     def __gen_jacobian_declaration(self, file_handler):
         """ Generates Java code for Jacobian function declaration
@@ -32,20 +35,9 @@ class JavaJacobianCodeGenerator(JacobianCodeGenerator):
             file_handler : an instance of FileCodeWriter that handles writing
                            generated code to a file.
         """
-        param_str = ""
-        is_first = True
-        for var in self.var_list:
-            if is_first:
-                is_first = False
-            else:
-                param_str += ", "
-            if var.var_type == VariableType.NUMBER:
-                type_decl = "double"
-            else:
-                type_decl = "double" + "[]" * len(var.dimension)
-            param_str += type_decl + " " + var.name
-        header = "double[] %s(%s) {\n" % (self.func_name, param_str)
-        file_handler.write(header)
+        func_declaration = codegenutil.get_java_func_declaration(
+            self.func_name, "double[]", self.var_list, self.modifier_list)
+        file_handler.write(func_declaration + " {\n")
 
     def _gen_jacobian_code(self, file_handler):
         """ Generates Java code for function to compute Jacobian vector

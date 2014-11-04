@@ -9,6 +9,9 @@ class JacobianCodeGenerator(object):
         var_list : A list of Variable objects
         expr : A sympy symbolic expression
         func_name : A string representing name of the generated Hessian method
+        modifier_list : A list of strings indicating modifiers for the
+                        hessian method / function, and for derivative functions
+                        (such as static, private, public, etc.)
 
     Protected object member attributes:
         _diff_code_generator : The code generator for partial derivatives
@@ -23,7 +26,8 @@ class JacobianCodeGenerator(object):
             self,
             var_list,
             sympy_expr,
-            func_name=None):
+            func_name=None,
+            modifier_list=None):
         """ Class constructor
         """
         self.var_list = var_list
@@ -32,6 +36,10 @@ class JacobianCodeGenerator(object):
             self.func_name = JacobianCodeGenerator.DEFAULT_FUNC_NAME
         else:
             self.func_name = func_name
+        if modifier_list is None:
+            self.modifier_list = []
+        else:
+            self.modifier_list = modifier_list
         self._diff_code_generator = self._get_derivative_code_generator()
 
     @abstractmethod

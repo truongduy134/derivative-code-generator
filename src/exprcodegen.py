@@ -88,6 +88,8 @@ class ExprCodeGenerator(object):
         var_list : A list of Variable objects
         expr : A sympy symbolic expression
         func_name : A string representing function name
+        modifier_list : A list of strings indicating modifiers for the 
+                    method / function (such as static, private, public, etc.)
         temp_var_prefix : A string indicating the name that is used as a prefix
                    for temporary variables in code generation
 
@@ -110,6 +112,7 @@ class ExprCodeGenerator(object):
             var_list,
             sympy_expr,
             func_name=None,
+            modifier_list=None,
             temp_prefix=None):
         """ Class constructor
         """
@@ -123,6 +126,10 @@ class ExprCodeGenerator(object):
             self.temp_var_prefix = ExprCodeGenerator.DEFAULT_TEMP_NAME
         else:
             self.temp_var_prefix = temp_prefix
+        if modifier_list is None:
+            self.modifier_list = []
+        else:
+            self.modifier_list = modifier_list
         self.__num_temp_var_used = 0
         self._var_dict = {var_obj.name: var_obj for var_obj in self.var_list}
 

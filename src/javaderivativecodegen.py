@@ -15,11 +15,12 @@ class JavaDerivativeCodeGenerator(DerivativeCodeGenerator):
             self,
             var_list,
             sympy_expr,
-            base_func_name=None):
+            base_func_name=None,
+            modifier_list=None):
         """ Class constructor
         """
         DerivativeCodeGenerator.__init__(
-            self, var_list, sympy_expr, base_func_name)
+            self, var_list, sympy_expr, base_func_name, modifier_list)
 
     def gen_code(
             self,
@@ -38,7 +39,7 @@ class JavaDerivativeCodeGenerator(DerivativeCodeGenerator):
                          first-order derivative)
             auto_add_suffix : a boolean variable indicating a suffix should be
                 added to method name. If it is false, method name is the
-                same as self.base_func_name. If it is true, method name is 
+                same as self.base_func_name. If it is true, method name is
                 self.base_func_name followed by first_var_ind, and
                 second_var_ind (if it is not None)
         """
@@ -53,5 +54,5 @@ class JavaDerivativeCodeGenerator(DerivativeCodeGenerator):
         func_name = self.get_derivative_func_name(
             first_var_ind, second_var_ind, auto_add_suffix)
         expr_generator = JavaExprCodeGenerator(
-            self.var_list, derivative_expr, func_name)
+            self.var_list, derivative_expr, func_name, self.modifier_list)
         expr_generator.gen_code(file_handler)
