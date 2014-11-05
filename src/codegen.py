@@ -1,10 +1,9 @@
 import argparse
 import sympy
-from codegenutil import Variable, VariableType
+from codegenutil import Variable, VariableType, FileCodeWriter
 from exprcodegen import JavaExprCodeGenerator
 from hessiancodegen import JavaHessianCodeGenerator
 from jacobiancodegen import JavaJacobianCodeGenerator
-from filecodewriter import FileCodeWriter
 from sympy import Symbol, MatrixSymbol, Matrix
 from javainterfacecodegen import JavaLeastSquareInterfaceGenerator
 
