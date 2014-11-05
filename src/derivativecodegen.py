@@ -1,6 +1,8 @@
 from abc import ABCMeta, abstractmethod
 from sympy import Matrix, MatrixSymbol, Symbol, diff
-from exprcodegen import VariableType
+
+from codegenutil import VariableType
+from exprcodegen import JavaExprCodeGenerator
 
 def first_order_derivative(expr, first_var):
     """ Gets the first-order partial derivative of the given sympy expression
@@ -170,3 +172,56 @@ class DerivativeCodeGenerator(object):
         for first_var_ind in xrange(self.get_num_expanded_var()):
             for second_var_ind in xrange(self.get_num_expanded_var()):
                 self.gen_code(file_handler, first_var_ind, second_var_ind, True)
+
+class JavaDerivativeCodeGenerator(DerivativeCodeGenerator):
+    """
+    This is a class inherited from DerivativeCodeGenerator that generates
+    Java code to compute partial derivatives for an input mathematical
+    multivariate expression
+    """
+
+    def __init__(
+            self,
+            var_list,
+            sympy_expr,
+            base_func_name=None,
+            modifier_list=None):
+        """ Class constructor
+        """
+        DerivativeCodeGenerator.__init__(
+            self, var_list, sympy_expr, base_func_name, modifier_list)
+
+    def gen_code(
+            self,
+            file_handler,
+            first_var_ind,
+            second_var_ind=None,
+            auto_add_suffix=True):
+        """ Generates Java code for function to compute a partial derivative
+        Args:
+            file_handler : an instance of FileCodeWriter that handles writing
+                           generated code to a file.
+            first_ind : an integer indicating the index of the first variable
+                        for differentiation
+            second_ind : an integer indicating the index of the second variable
+                         for differentiation (maybe None if we compute
+                         first-order derivative)
+            auto_add_suffix : a boolean variable indicating a suffix should be
+                added to method name. If it is false, method name is the
+                same as self.base_func_name. If it is true, method name is
+                self.base_func_name followed by first_var_ind, and
+                second_var_ind (if it is not None)
+        """
+        if second_var_ind is None:
+            derivative_expr = first_order_derivative(
+                self.expr, self._expanded_var_list[first_var_ind])
+        else:
+            derivative_expr = second_order_derivative(
+                self.expr,
+                self._expanded_var_list[first_var_ind],
+                self._expanded_var_list[second_var_ind])
+        func_name = self.get_derivative_func_name(
+            first_var_ind, second_var_ind, auto_add_suffix)
+        expr_generator = JavaExprCodeGenerator(
+            self.var_list, derivative_expr, func_name, self.modifier_list)
+        expr_generator.gen_code(file_handler)
