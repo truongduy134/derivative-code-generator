@@ -1,11 +1,8 @@
 import argparse
 import sympy
 from codegenutil import Variable, VariableType, FileCodeWriter
-from exprcodegen import JavaExprCodeGenerator
-from hessiancodegen import JavaHessianCodeGenerator
-from jacobiancodegen import JavaJacobianCodeGenerator
 from sympy import Symbol, MatrixSymbol, Matrix
-from javainterfacecodegen import JavaLeastSquareInterfaceGenerator
+from exprclasscodegen import JavaExprClassCodeGenerator
 
 description = """
 Testing
@@ -17,7 +14,7 @@ def main():
     arg_parser.parse_args()
 
     input_file = open("input.txt", "r")
-    output_file = FileCodeWriter("LeastSquareProblem.java")
+    output_file = FileCodeWriter("SampleExpression.java")
 
     expr_str = ""
     var_list = []
@@ -42,15 +39,9 @@ def main():
                 expr_str = components[1]
 
     sympy_expr = sympy.sympify(expr_str, locals)
-    hessian_generator = JavaHessianCodeGenerator(var_list, sympy_expr, modifier_list=["public"])
-    hessian_generator.gen_code(output_file)
-    jacobian_generator = JavaJacobianCodeGenerator(var_list, sympy_expr, modifier_list=["public"])
-    jacobian_generator.gen_code(output_file)
-
-    interface_writer = FileCodeWriter(
-        JavaLeastSquareInterfaceGenerator.DEFAULT_INTERFACE_NAME + ".java")
-    java_igenerator = JavaLeastSquareInterfaceGenerator(var_list)
-    java_igenerator.gen_code(interface_writer)
+    code_generator = JavaExprClassCodeGenerator(
+        var_list, sympy_expr, "SampleExpression")
+    code_generator.gen_code(output_file)
 
 if __name__ == "__main__":
     main()

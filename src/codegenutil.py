@@ -181,5 +181,8 @@ def get_java_func_declaration(
     modifier_str = " ".join(modifier_list)
     if modifier_str:
         modifier_str += " "
-    func_delc = "%s%s %s(%s)" % (modifier_str, ret_type, func_name, param_str)
+    rettype_str = ret_type
+    if rettype_str:
+        rettype_str += " "
+    func_delc = "%s%s%s(%s)" % (modifier_str, rettype_str, func_name, param_str)
     return func_delc
