@@ -55,6 +55,7 @@ class FileCodeWriter(object):
         writing output code strings.
 
     Public object member attributes:
+        file_name : Name of the file that is written to
         tab_type : An IndentType enum indicating the generated code should be
                    indented by tab key or space
         tab_size : A integer indicating the tab size. The value is ignored if
@@ -83,9 +84,30 @@ class FileCodeWriter(object):
             self.tab_size = FileCodeWriter.DEFAULT_TAB_SIZE
         else:
             self.tab_size = tab_size
-        self.__file_handler = open(file_name, 'w')
+        self.file_name = file_name
         self.__num_tab_from_margin = 0
         self.__indent_str = self.__get_indent_string()
+        self.__file_handler = None
+
+    def __enter__(self):
+        if not self.__file_handler:
+            self.open()
+            self.__file_handler.__enter__()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.__file_handler:
+            self.__file_handler.__exit__(exc_type, exc_value, traceback)
+
+    def open(self):
+        """ Opens the file with specified file name for writing code
+        """
+        self.__file_handler = open(self.file_name, "w")
+
+    def close(self):
+        """ Closes the file
+        """
+        self.__file_handler.close()
 
     def tab(self):
         """ Increases the number of tabs from left margin by 1
