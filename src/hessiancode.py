@@ -1,11 +1,11 @@
 from abc import ABCMeta, abstractmethod
 
 import codegenutil
-from derivativecodegen import JavaDerivativeCodeGenerator
+from derivativecode import JavaDerivativeCodeGenerator
 
-class JacobianCodeGenerator(object):
+class HessianCodeGenerator(object):
     """
-    This is an abstract class for generating code to compute Jacobian vector
+    This is an abstract class for generating code to compute Hessian matrix
     for an input mathematical multivariate expression
 
     Public object member attributes:
@@ -22,7 +22,7 @@ class JacobianCodeGenerator(object):
 
     __metaclass__ = ABCMeta
 
-    DEFAULT_FUNC_NAME = "jacobian"
+    DEFAULT_FUNC_NAME = "hessian"
     DEFAULT_DERIVATIVE_NAME = "partialDerivative"
 
     def __init__(
@@ -36,7 +36,7 @@ class JacobianCodeGenerator(object):
         self.var_list = var_list
         self.expr = sympy_expr
         if func_name is None:
-            self.func_name = JacobianCodeGenerator.DEFAULT_FUNC_NAME
+            self.func_name = HessianCodeGenerator.DEFAULT_FUNC_NAME
         else:
             self.func_name = func_name
         if modifier_list is None:
@@ -54,8 +54,8 @@ class JacobianCodeGenerator(object):
         pass
 
     @abstractmethod
-    def _gen_jacobian_code(self, file_handler):
-        """ Generates code for function to compute Jacobian vector
+    def _gen_hessian_code(self, file_handler):
+        """ Generates code for function to compute Hessian matrix
         Subclass should implement this method to generate function code in a
         specific programming language
         Args:
@@ -70,14 +70,13 @@ class JacobianCodeGenerator(object):
             file_handler : an instance of FileCodeWriter that handles writing
                            generated code to a file.
         """
-        self._diff_code_generator.gen_code_all_first_order(file_handler)
-        self._gen_jacobian_code(file_handler)
+        self._diff_code_generator.gen_code_all_second_order(file_handler)
+        self._gen_hessian_code(file_handler)
 
-class JavaJacobianCodeGenerator(JacobianCodeGenerator):
+class JavaHessianCodeGenerator(HessianCodeGenerator):
     """
-    This is a class inherited from JacobianCodeGenerator that generates Java
-    code to compute Hessian matrix for an input mathematical multivariate
-    expression
+    This is a class inherited from HessianCodeGenerator that generates Java code
+    to compute Hessian matrix for an input mathematical multivariate expression
     """
 
     def __init__(
@@ -88,7 +87,7 @@ class JavaJacobianCodeGenerator(JacobianCodeGenerator):
             modifier_list=None):
         """ Class constructor
         """
-        JacobianCodeGenerator.__init__(
+        HessianCodeGenerator.__init__(
             self, var_list, sympy_expr, func_name, modifier_list)
 
     def _get_derivative_code_generator(self):
@@ -97,42 +96,45 @@ class JavaJacobianCodeGenerator(JacobianCodeGenerator):
         return JavaDerivativeCodeGenerator(
             self.var_list,
             self.expr,
-            JacobianCodeGenerator.DEFAULT_DERIVATIVE_NAME,
+            HessianCodeGenerator.DEFAULT_DERIVATIVE_NAME,
             self.modifier_list)
 
-    def __gen_jacobian_declaration(self, file_handler):
-        """ Generates Java code for Jacobian function declaration
+    def __gen_hessian_declaration(self, file_handler):
+        """ Generates Java code for Hessian function declaration
         Args:
             file_handler : an instance of FileCodeWriter that handles writing
                            generated code to a file.
         """
         func_declaration = codegenutil.get_java_func_declaration(
-            self.func_name, "double[]", self.var_list, self.modifier_list)
+            self.func_name, "double[][]", self.var_list, self.modifier_list)
         file_handler.write(func_declaration + " {\n")
 
-    def _gen_jacobian_code(self, file_handler):
-        """ Generates Java code for function to compute Jacobian vector
+    def _gen_hessian_code(self, file_handler):
+        """ Generates Java code for function to compute Hessian matrix
         Args:
             file_handler : an instance of FileCodeWriter that handles writing
                            generated code to a file.
         """
-        self.__gen_jacobian_declaration(file_handler)
-        # Function body
-        num_var = self._diff_code_generator.get_num_expanded_var()
+        self.__gen_hessian_declaration(file_handler)
         # Function body
         num_var = self._diff_code_generator.get_num_expanded_var()
         param_list = ", ".join([var.name for var in self.var_list])
-        temp_vector = "__temp"
+        temp_mat = "__temp"
 
         file_handler.tab()
-        file_handler.write("double[] %s = new double[%d];\n" % (
-            temp_vector, num_var))
+        file_handler.write("double[][] %s = new double[%d][%d];\n" % (
+            temp_mat, num_var, num_var))
         for i in xrange(num_var):
-            file_handler.write("%s[%d] = %s(%s);\n" % (
-                temp_vector, i,
-                self._diff_code_generator.get_derivative_func_name(
-                    i, None, True),
-                param_list))
-        file_handler.write("return %s;\n" % temp_vector)
+            for j in xrange(i, num_var):
+                file_handler.write("%s[%d][%d] = %s(%s);\n" % (
+                    temp_mat, i, j,
+                    self._diff_code_generator.get_derivative_func_name(
+                        i, j, True),
+                    param_list))
+                if i == j:
+                    continue
+                file_handler.write("%s[%d][%d] = %s[%d][%d];\n" % (
+                    temp_mat, j, i, temp_mat, i, j))
+        file_handler.write("return %s;\n" % temp_mat)
         file_handler.untab()
         file_handler.write("}\n")

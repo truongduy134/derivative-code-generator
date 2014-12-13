@@ -2,15 +2,15 @@ import argparse
 import sympy
 from codegenutil import Variable, VariableType, FileCodeWriter
 from sympy import Symbol, MatrixSymbol, Matrix
-from exprclasscodegen import JavaExprClassCodeGenerator
+from exprclasscode import JavaExprClassCodeGenerator
 
-description = """
-Testing
+DESCRIPTION = """
+The program generates
 """
 
 def main():
     # Parsing command-line inputs
-    arg_parser = argparse.ArgumentParser(description=description)
+    arg_parser = argparse.ArgumentParser(description=DESCRIPTION)
     arg_parser.parse_args()
 
     input_file = open("input.txt", "r")

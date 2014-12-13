@@ -1,9 +1,9 @@
 from abc import ABCMeta, abstractmethod
 
 import codegenutil
-from exprcodegen import JavaExprCodeGenerator
-from hessiancodegen import JavaHessianCodeGenerator
-from jacobiancodegen import JavaJacobianCodeGenerator
+from exprcode import JavaExprCodeGenerator
+from hessiancode import JavaHessianCodeGenerator
+from jacobiancode import JavaJacobianCodeGenerator
 
 class ExprClassCodeGenerator(object):
     """
@@ -12,6 +12,8 @@ class ExprClassCodeGenerator(object):
     Jacobian vector of the input expression, and to evaluate the Hessian matrix
     of the input expression.
     """
+
+    __metaclass__ = ABCMeta
 
     DEFAULT_CLASS_NAME = "MathExpression"
     DEFAULT_EVAL_FUNC_NAME = "eval"
@@ -210,6 +212,6 @@ class JavaExprClassCodeGenerator(ExprClassCodeGenerator):
             file_handler : an instance of FileCodeWriter that handles writing
                            generated code to a file.
         """
-        file_handler.write("%s {}\n\n" %
-            codegenutil.get_java_func_declaration(
+        file_handler.write(
+            "%s {}\n\n" % codegenutil.get_java_func_declaration(
                 self.class_name, "", [], ["public"]))
