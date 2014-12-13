@@ -109,6 +109,18 @@ class ExprClassCodeGenerator(object):
         """
         pass
 
+    @abstractmethod
+    def default_file_name(self):
+        """ Gets the default file name (with extension) for the source code file
+        of this class.
+        Subclass should implement this method to return default file name with
+        appropriate extension.
+
+        Returns:
+            file_name : a string representing a file name with extension.
+        """
+        pass
+
     def gen_code(self, file_handler):
         """ Generates code for the expression class
         Args:
@@ -215,3 +227,12 @@ class JavaExprClassCodeGenerator(ExprClassCodeGenerator):
         file_handler.write(
             "%s {}\n\n" % codegenutil.get_java_func_declaration(
                 self.class_name, "", [], ["public"]))
+
+    def default_file_name(self):
+        """ Gets the default file name (with extension) for the source code file
+        of this class.
+
+        Returns:
+            file_name : a string representing a file name with java extension.
+        """
+        return self.class_name + "." + "java"
