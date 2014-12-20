@@ -98,9 +98,10 @@ def t_ignore_BLOCK_COMMENT(t):
     "/\*(.|\\n)*?\*/"
     t.lexer.lineno += t.value.count("\n")
 
+lexer = plex.lex()
+
 def main():
     text = open('firstExpr.txt', 'r').read()
-    lexer = plex.lex()
     lexer.input(text)
     while True:
         token = lexer.token()
