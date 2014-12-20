@@ -52,3 +52,7 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+# Third party PLY output files
+parser.out
+parsetab.py
+ply-3.4c
