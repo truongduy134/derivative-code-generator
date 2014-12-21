@@ -60,7 +60,7 @@ t_PLUS = "\\+"
 t_MINUS = "-"
 t_MUL = "\\*"
 t_DIV = "/"
-t_EXP = "\\*\\*"
+t_EXP = "\\^"
 t_DOT = "\\."
 t_EQUAL = "="
 
