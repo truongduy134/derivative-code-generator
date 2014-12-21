@@ -3,6 +3,7 @@ import os
 import os.path as ospath
 import sympy
 
+import exprparser
 from codegenutil import Variable, VariableType, FileCodeWriter
 from sympy import Symbol, MatrixSymbol, Matrix
 from exprclasscode import JavaExprClassCodeGenerator
@@ -110,13 +111,14 @@ def main():
             "The specified language: %s is not supported" % args.lang)
 
     with open(args.exprfile, "r") as input_file:
-        # TODO: Do lexical and syntax analysis
+        # Do simple lexical and syntax analysis
+        program_lines = exprparser.parse_expr_desc_file(input_file.read())
 
         expr_str = ""
         var_list = []
         sympy_locals = {}
 
-        for line in input_file:
+        for line in program_lines.split("\n"):
             if "var" in line:
                 components = line.split()[1:]
                 if len(components) > 1 and components[1] == "vector":
@@ -133,7 +135,6 @@ def main():
                 if "model" in line:
                     components = line.split('=')
                     expr_str = components[1]
-
         sympy_expr = sympy.sympify(expr_str, sympy_locals)
         gen_code(var_list, sympy_expr, args)
 
