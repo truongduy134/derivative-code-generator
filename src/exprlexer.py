@@ -31,17 +31,20 @@ tokens = (
     "DIV",
     "EXP",
     "DOT",
+    "CROSS",
     "EQUAL",
 
-    # Bracket, parenthesis
+    # Bracket, parenthesis, punctuation
     "LPAREN",
     "RPAREN",
     "LSQRBRAC",
     "RSQRBRAC",
+    "COMMA",
 
     # Variable ID and Number
     "ID",
-    "NUMBER"
+    "DOUBLE",
+    "INTEGER"
 )
 
 reserved = {
@@ -62,16 +65,23 @@ t_MUL = "\\*"
 t_DIV = "/"
 t_EXP = "\\^"
 t_DOT = "\\."
+t_CROSS = "\\#"
 t_EQUAL = "="
 
-# Rules for bracket and parenthesis
+# Rules for bracket, parenthesis and punctuation
 t_LPAREN = "\\("
 t_RPAREN = "\\)"
 t_LSQRBRAC = "\\["
 t_RSQRBRAC = "\\]"
+t_COMMA = ","
 
-def t_NUMBER(t):
-    "\d+(\.)?\d*(e(\+|-)\d+)?"
+def t_INTEGER(t):
+    "\d+"
+    t.value = int(t.value)
+    return t
+
+def t_DOUBLE(t):
+    "\d+((\.\d*) | ((\.\d*)?(e(\+|-)\d+)?))"
     t.value = float(t.value)
     return t
 
@@ -99,15 +109,3 @@ def t_ignore_BLOCK_COMMENT(t):
     t.lexer.lineno += t.value.count("\n")
 
 lexer = plex.lex()
-
-def main():
-    text = open('firstExpr.txt', 'r').read()
-    lexer.input(text)
-    while True:
-        token = lexer.token()
-        if not token:
-            break
-        print token.type, token.value, token.lineno
-
-if __name__ == "__main__":
-    main()
