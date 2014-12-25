@@ -47,6 +47,8 @@ def p_expression(p):
                | expression CROSS expression
                | LPAREN expression RPAREN
                | MINUS expression %prec UMINUS
+               | vector_index
+               | matrix_index
                | atom
     """
     num_components = len(p)
@@ -72,6 +74,22 @@ def p_expression(p):
     else:
         # Expression with normal +, -, *, / operators
         p[0] = p[1] + p[2] + p[3]
+
+def p_matrix_index(p):
+    """
+    matrix_index : vector_index LSQRBRAC expression RSQRBRAC
+    """
+    p[0] = p[1] + "[" + p[3] + "]"
+
+def p_vector_index(p):
+    """
+    vector_index : ID LSQRBRAC expression RSQRBRAC
+                 | LPAREN expression RPAREN LSQRBRAC expression RSQRBRAC
+    """
+    if len(p) == 5:
+        p[0] = p[1] + "[" + p[3] + "]"
+    else:
+        p[0] = "(" + p[2] + ")[" + p[5] + "]"
 
 def p_atom(p):
     """
