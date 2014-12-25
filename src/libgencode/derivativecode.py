@@ -1,8 +1,8 @@
 from abc import ABCMeta, abstractmethod
 from sympy import Matrix, MatrixSymbol, Symbol, diff
 
-from codegenutil import VariableType
-from exprcode import JavaExprCodeGenerator
+from .codegenutil import VariableType
+from .exprcode import JavaExprCodeGenerator
 
 def first_order_derivative(expr, first_var):
     """ Gets the first-order partial derivative of the given sympy expression

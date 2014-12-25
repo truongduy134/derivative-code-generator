@@ -3,10 +3,11 @@ import os
 import os.path as ospath
 import sympy
 
-import exprparser
-from codegenutil import Variable, VariableType, FileCodeWriter
 from sympy import Symbol, MatrixSymbol, Matrix
-from exprclasscode import JavaExprClassCodeGenerator
+
+import parsing.expryacc as exprparser
+from libgencode.codegenutil import Variable, VariableType, FileCodeWriter
+from libgencode.exprclasscode import JavaExprClassCodeGenerator
 
 DESCRIPTION = """
 The program reads a file specifying a multivariate arithmetic expression, and

@@ -1,9 +1,9 @@
 from abc import ABCMeta, abstractmethod
 
-import codegenutil
-from exprcode import JavaExprCodeGenerator
-from hessiancode import JavaHessianCodeGenerator
-from jacobiancode import JavaJacobianCodeGenerator
+import libgencode.codegenutil as codegenutil
+from .exprcode import JavaExprCodeGenerator
+from .hessiancode import JavaHessianCodeGenerator
+from .jacobiancode import JavaJacobianCodeGenerator
 
 class ExprClassCodeGenerator(object):
     """

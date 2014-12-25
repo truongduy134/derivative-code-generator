@@ -1,14 +1,4 @@
-import sys
-import os.path as ospath
-
-# Specify path to load ply.lexer module
-plylex_path = ospath.abspath(ospath.join(
-    ospath.dirname(__file__),
-    "../third-party/ply-3.4"
-))
-sys.path.append(plylex_path)
-
-import ply.lex as plex
+import ply.lex as pylex
 
 # List of token names. Always required
 tokens = (
@@ -108,4 +98,4 @@ def t_ignore_BLOCK_COMMENT(t):
     "/\\*(.|\\n)*?\\*/"
     t.lexer.lineno += t.value.count("\n")
 
-lexer = plex.lex()
+lexer = pylex.lex()
