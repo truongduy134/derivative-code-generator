@@ -1,11 +1,8 @@
 import argparse
 import os
 import os.path as ospath
-import sympy
 
-from sympy import Symbol, MatrixSymbol, Matrix
-
-import parsing.expryacc as exprparser
+import parsing.exprparser as exprparser
 from common.vardef import Variable, VariableType
 from libgencode.codegenutil import FileCodeWriter
 from libgencode.exprclasscode import JavaExprClassCodeGenerator
@@ -113,31 +110,8 @@ def main():
             "The specified language: %s is not supported" % args.lang)
 
     with open(args.exprfile, "r") as input_file:
-        # Do simple lexical and syntax analysis
-        program_lines = exprparser.parse_expr_desc_file(input_file.read())
-
-        expr_str = ""
-        var_list = []
-        sympy_locals = {}
-
-        for line in program_lines.split("\n"):
-            if "var" in line:
-                components = line.split()[1:]
-                if len(components) > 1 and components[1] == "vector":
-                    vector_size = int(components[2])
-                    var_list.append(Variable(
-                        components[0], VariableType.VECTOR, (vector_size,)))
-                    sympy_locals[components[0]] = Matrix(
-                        MatrixSymbol(components[0], vector_size, 1))
-                else:
-                    var_list.append(
-                        Variable(components[0], VariableType.NUMBER, ()))
-                    sympy_locals[components[0]] = Symbol(components[0])
-            else:
-                if "model" in line:
-                    components = line.split('=')
-                    expr_str = components[1]
-        sympy_expr = sympy.sympify(expr_str, sympy_locals)
+        var_list, sympy_expr = exprparser.parse_expr_specification(
+            input_file.read())
         gen_code(var_list, sympy_expr, args)
 
 if __name__ == "__main__":

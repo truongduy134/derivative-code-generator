@@ -138,7 +138,7 @@ def p_empty(p):
 
 parser = pyyacc.yacc()
 
-def parse_expr_desc_file(program_text):
+def parse(program_text):
     """ Parses the expression description program
     """
     return parser.parse(program_text)
