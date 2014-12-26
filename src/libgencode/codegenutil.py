@@ -187,6 +187,9 @@ def get_java_func_declaration(
         var_list : A list of Variable objects which are method parameters
         modifier_list : A list of modifiers for the method / function (such as
                         static, private, public, etc.)
+
+    Returns:
+        A string that is the function / method declaration in Java
     """
     param_str = ""
     is_first = True
