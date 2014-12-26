@@ -1,7 +1,8 @@
 from abc import ABCMeta, abstractmethod
 
 import libgencode.codegenutil as codegenutil
-from .codegenutil import OperatorType, VariableType
+from codegenutil import OperatorType
+from common.vardef import VariableType
 
 class ExprCodeGenerator(object):
     """

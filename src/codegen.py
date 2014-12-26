@@ -6,7 +6,8 @@ import sympy
 from sympy import Symbol, MatrixSymbol, Matrix
 
 import parsing.expryacc as exprparser
-from libgencode.codegenutil import Variable, VariableType, FileCodeWriter
+from common.vardef import Variable, VariableType
+from libgencode.codegenutil import FileCodeWriter
 from libgencode.exprclasscode import JavaExprClassCodeGenerator
 
 DESCRIPTION = """
