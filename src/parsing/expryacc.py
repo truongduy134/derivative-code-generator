@@ -24,17 +24,17 @@ def p_list_var_declarations(p):
 
 def p_var_declaration(p):
     """
-    var_declaration : VAR ID
-                    | VAR ID VECTOR INTEGER
+    var_declaration : NUMBER ID
+                    | VECTOR ID LPAREN INTEGER RPAREN
     """
     if len(p) == 3:
-        p[0] = p[1] + " " + p[2]
+        p[0] = "var %s" % p[2]
     else:
-        p[0] = p[1] + " " + p[2] + " " + p[3] + " " + str(p[4])
+        p[0] = "var %s vector %d" % (p[2], p[4])
 
 def p_expr_declaration(p):
-    "expr_declaration : MODEL EQUAL expression"
-    p[0] = p[1] + "=" + p[3]
+    "expr_declaration : EXPR EQUAL expression"
+    p[0] = "model=" + p[3]
 
 def p_expression(p):
     """

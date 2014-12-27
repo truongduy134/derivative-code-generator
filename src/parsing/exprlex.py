@@ -3,9 +3,9 @@ import ply.lex as pylex
 # List of token names. Always required
 tokens = (
     # Reserved type keywords
-    "VAR",
+    "NUMBER",
     "VECTOR",
-    "MODEL",
+    "EXPR",
 
     # Reserved standard math functions
     "SQRT",
@@ -43,9 +43,9 @@ reserved = {
     "cos" : "COS",
     "tan" : "TAN",
     "cot" : "COT",
-    "var" : "VAR",
+    "number" : "NUMBER",
     "vector" : "VECTOR",
-    "model" : "MODEL"
+    "expr" : "EXPR"
 }
 
 # Rules for operators
