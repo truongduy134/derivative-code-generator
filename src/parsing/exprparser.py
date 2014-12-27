@@ -26,12 +26,21 @@ def parse_expr_specification(program_txt):
     for line in program_lines.split("\n"):
         if "var" in line:
             components = line.split()[1:]
-            if len(components) > 1 and components[1] == "vector":
-                vector_size = int(components[2])
-                var_list.append(Variable(
-                    components[0], VariableType.VECTOR, (vector_size,)))
-                sympy_locals[components[0]] = Matrix(
-                    MatrixSymbol(components[0], vector_size, 1))
+            if len(components) > 1:
+                if components[1] == "vector":
+                    vector_size = int(components[2])
+                    var_list.append(Variable(
+                        components[0], VariableType.VECTOR, (vector_size,)))
+                    sympy_locals[components[0]] = Matrix(
+                        MatrixSymbol(components[0], vector_size, 1))
+                if components[1] == "matrix":
+                    num_rows = int(components[2])
+                    num_cols = int(components[3])
+                    var_list.append(Variable(
+                        components[0], VariableType.MATRIX, (num_rows, num_cols)
+                    ))
+                    sympy_locals[components[0]] = Matrix(
+                        MatrixSymbol(components[0], num_rows, num_cols))
             else:
                 var_list.append(
                     Variable(components[0], VariableType.NUMBER, ()))

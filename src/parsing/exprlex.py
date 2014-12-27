@@ -5,6 +5,7 @@ tokens = (
     # Reserved type keywords
     "NUMBER",
     "VECTOR",
+    "MATRIX",
     "EXPR",
 
     # Reserved standard math functions
@@ -45,6 +46,7 @@ reserved = {
     "cot" : "COT",
     "number" : "NUMBER",
     "vector" : "VECTOR",
+    "matrix" : "MATRIX",
     "expr" : "EXPR"
 }
 

@@ -26,11 +26,14 @@ def p_var_declaration(p):
     """
     var_declaration : NUMBER ID
                     | VECTOR ID LPAREN INTEGER RPAREN
+                    | MATRIX ID LPAREN INTEGER COMMA INTEGER RPAREN
     """
-    if len(p) == 3:
+    if p[1] == "number":
         p[0] = "var %s" % p[2]
-    else:
+    elif p[1] == "vector":
         p[0] = "var %s vector %d" % (p[2], p[4])
+    else:
+        p[0] = "var %s matrix %d %d" % (p[2], p[4], p[6])
 
 def p_expr_declaration(p):
     "expr_declaration : EXPR EQUAL expression"
