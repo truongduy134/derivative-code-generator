@@ -3,8 +3,8 @@ from .exprlex import tokens
 
 precedence = (
     ('left', 'PLUS', 'MINUS'),
-    ('left', 'MUL', 'DIV', 'DOT', 'CROSS'),
-    ('left', 'EXP'),
+    ('left', 'MUL', 'DIV', 'DOT'),
+    ('left', 'EXP', 'CROSS'),
     ('right', 'UMINUS')
 )
 
