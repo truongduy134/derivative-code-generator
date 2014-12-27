@@ -47,6 +47,7 @@ def p_expression(p):
                | expression CROSS expression
                | LPAREN expression RPAREN
                | MINUS expression %prec UMINUS
+               | math_func_call
                | vector_index
                | matrix_index
                | atom
@@ -74,6 +75,12 @@ def p_expression(p):
     else:
         # Expression with normal +, -, *, / operators
         p[0] = p[1] + p[2] + p[3]
+
+def p_math_func_call(p):
+    """
+    math_func_call : math_func LPAREN expression RPAREN
+    """
+    p[0] = "%s(%s)" % (p[1], p[3])
 
 def p_matrix_index(p):
     """
@@ -131,6 +138,16 @@ def p_core(p):
          | INTEGER
     """
     p[0] = str(p[1])
+
+def p_math_func(p):
+    """
+    math_func : SQRT
+              | SIN
+              | COS
+              | TAN
+              | COT
+    """
+    p[0] = p [1]
 
 def p_empty(p):
     "empty :"
