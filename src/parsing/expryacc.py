@@ -149,8 +149,12 @@ def p_math_func(p):
               | COS
               | TAN
               | COT
+              | LN
     """
-    p[0] = p [1]
+    if p[1] == "ln":
+        p[0] = "log"
+    else:
+        p[0] = p[1]
 
 def p_empty(p):
     "empty :"

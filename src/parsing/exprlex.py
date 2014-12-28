@@ -14,6 +14,7 @@ tokens = (
     "COS",
     "TAN",
     "COT",
+    "LN",
 
     # Math operator
     "PLUS",
@@ -44,6 +45,7 @@ reserved = {
     "cos" : "COS",
     "tan" : "TAN",
     "cot" : "COT",
+    "ln" : "LN",
     "number" : "NUMBER",
     "vector" : "VECTOR",
     "matrix" : "MATRIX",
