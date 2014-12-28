@@ -5,6 +5,7 @@ precedence = (
     ('left', 'PLUS', 'MINUS'),
     ('left', 'MUL', 'DIV', 'DOT'),
     ('left', 'EXP', 'CROSS'),
+    ('left', 'APOSTROPHE'),
     ('right', 'UMINUS')
 )
 
@@ -41,14 +42,15 @@ def p_expr_declaration(p):
 
 def p_expression(p):
     """
-    expression : expression PLUS expression
+    expression : LPAREN expression RPAREN
+               | expression PLUS expression
                | expression MINUS expression
                | expression MUL expression
                | expression DIV expression
                | expression DOT expression
                | expression EXP expression
                | expression CROSS expression
-               | LPAREN expression RPAREN
+               | expression APOSTROPHE
                | MINUS expression %prec UMINUS
                | math_func_call
                | vector_index
@@ -60,8 +62,12 @@ def p_expression(p):
         # expression : atom
         p[0] = p[1]
     elif num_components == 3:
-        # expression : -expression
-        p[0] = "-" + p[2]
+        if p[1] == "-":
+            # expression : -expression
+            p[0] = "-" + p[2]
+        else:
+            # expression : expression' (matrix transpose)
+            p[0] = p[1] + ".T"
     elif p[1] == "(":
         # expression : (expression)
         p[0] = "(%s)" % p[2]
@@ -150,6 +156,7 @@ def p_math_func(p):
               | TAN
               | COT
               | LN
+              | TRANSPOSE
     """
     if p[1] == "ln":
         p[0] = "log"

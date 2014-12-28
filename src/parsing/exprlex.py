@@ -16,6 +16,9 @@ tokens = (
     "COT",
     "LN",
 
+    # Vector and matrix math functions
+    "TRANSPOSE",
+
     # Math operator
     "PLUS",
     "MINUS",
@@ -32,6 +35,7 @@ tokens = (
     "LSQRBRAC",
     "RSQRBRAC",
     "COMMA",
+    "APOSTROPHE",
 
     # Variable ID and Number
     "ID",
@@ -40,12 +44,18 @@ tokens = (
 )
 
 reserved = {
+    # Reserved standard math functions
     "sqrt" : "SQRT",
     "sin" : "SIN",
     "cos" : "COS",
     "tan" : "TAN",
     "cot" : "COT",
     "ln" : "LN",
+
+    # Vector and matrix functions
+    "transpose" : "TRANSPOSE",
+
+    # Reserved type keywords
     "number" : "NUMBER",
     "vector" : "VECTOR",
     "matrix" : "MATRIX",
@@ -68,6 +78,7 @@ t_RPAREN = "\\)"
 t_LSQRBRAC = "\\["
 t_RSQRBRAC = "\\]"
 t_COMMA = ","
+t_APOSTROPHE = "'"
 
 def t_INTEGER(t):
     "\\d+"

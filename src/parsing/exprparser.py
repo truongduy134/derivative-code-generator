@@ -18,7 +18,7 @@ def parse_expr_specification(program_txt):
                         expression object
     """
     program_lines = expryacc.parse(program_txt)
-
+    print program_lines
     expr_str = ""
     var_list = []
     sympy_locals = {}
