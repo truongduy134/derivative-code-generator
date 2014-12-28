@@ -289,6 +289,8 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
         if op_type == OperatorType.POW_REAL:
             statement_str += "Math.pow(%s, %s)" % (
                 operand_names[0], operand_names[1])
+        elif op_type == OperatorType.LOG_REAL:
+            statement_str += "Math.log(%s)" % operand_names[0]
         elif op_type in JavaExprCodeGenerator.SUPPORT_TRIGO_FUNCS:
             statement_str += "%s(%s)" % (
                 JavaExprCodeGenerator.SUPPORT_TRIGO_FUNCS[op_type],

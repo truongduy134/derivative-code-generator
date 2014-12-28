@@ -1,4 +1,4 @@
-from sympy import Add, Mul, Pow, Symbol, sin, cos, tan, cot
+from sympy import Add, Mul, Pow, Symbol, sin, cos, tan, cot, log
 from sympy.matrices.expressions.matexpr import MatrixElement
 
 from common.vardef import VariableType
@@ -17,6 +17,7 @@ class OperatorType(object):
     COS_REAL = 8
     TAN_REAL = 9
     COT_REAL = 10
+    LOG_REAL = 11
 
     # An array containing singleton operator type
     SINGLETON_OP_TYPE = [NUMBER, MATRIX, SYMBOL]
@@ -150,6 +151,8 @@ def get_operator_type(sympy_expr):
         return OperatorType.TAN_REAL
     if operator == cot:
         return OperatorType.COT_REAL
+    if operator == log:
+        return OperatorType.LOG_REAL
     return OperatorType.UNKNOWN
 
 def get_java_func_declaration(
