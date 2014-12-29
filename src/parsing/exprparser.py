@@ -5,6 +5,23 @@ import parsing.expryacc as expryacc
 
 from common.vardef import VariableType, Variable
 
+def is_const_expr(sympy_expr):
+    """ Checks if a sympy expression has constant values (which can be a
+    number, vector, or matrix).
+
+    Args:
+        sympy_expr : A sympy expression
+
+    Returns:
+        is_constant : A boolean value indicating whether the input expression
+                      has constant value
+    """
+    if hasattr(sympy_expr, "is_constant"):
+        is_constant = sympy_expr.is_constant()
+    else:
+        is_constant = not sympy_expr.is_symbolic()
+    return is_constant
+
 def parse_expr_specification(program_txt):
     """ Parses a program text that contains the specification of expression
 
@@ -45,9 +62,18 @@ def parse_expr_specification(program_txt):
                 var_list.append(
                     Variable(components[0], VariableType.NUMBER, ()))
                 sympy_locals[components[0]] = Symbol(components[0])
-        else:
-            if "model" in line:
+        elif "model" in line:
                 components = line.split('=')
                 expr_str = components[1]
+        else:
+            if "const" in line:
+                components = line.split('=')
+                expr_str = components[1]
+                const_name = components[0].split()[1]
+                expr_value = sympy.sympify(expr_str)
+                if not is_const_expr(expr_value):
+                    raise "Right hand-side is not a constant in constant declaration"
+                sympy_locals[const_name] = expr_value
+
     sympy_expr = sympy.sympify(expr_str, sympy_locals)
     return (var_list, sympy_expr)

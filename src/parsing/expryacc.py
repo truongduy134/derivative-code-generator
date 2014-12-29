@@ -10,8 +10,26 @@ precedence = (
 )
 
 def p_file_description(p):
-    "file_description : list_var_declarations expr_declaration"
-    p[0] = p[1] + "\n" + p[2]
+    """
+    file_description : list_const_declarations list_var_declarations expr_declaration
+    """
+    p[0] = p[1] + "\n" + p[2] + "\n" + p[3]
+
+def p_list_const_declarations(p):
+    """
+    list_const_declarations : const_declaration list_const_declarations
+                            | empty
+    """
+    if len(p) == 2:
+        p[0] = ""
+    else:
+        p[0] = p[1] + "\n" + p[2]
+
+def p_const_declaration(p):
+    """
+    const_declaration : CONST ID EQUAL expression
+    """
+    p[0] = "%s %s = %s" % (p[1], p[2], p[4])
 
 def p_list_var_declarations(p):
     """
@@ -110,15 +128,38 @@ def p_vector_index(p):
 def p_atom(p):
     """
     atom : core
-         | vector
+         | array_type
     """
     p[0] = p[1]
+
+def p_array_type(p):
+    """
+    array_type : vector
+               | matrix
+    """
+    p[0] = "Matrix(%s)" % p[1]
+
+def p_matrix(p):
+    """
+    matrix : LSQRBRAC list_vectors RSQRBRAC
+    """
+    p[0] = "[%s]" % p[2]
 
 def p_vector(p):
     """
     vector : LSQRBRAC list_cores RSQRBRAC
     """
-    p[0] = "Matrix([%s])" % p[2]
+    p[0] = "[%s]" % p[2]
+
+def p_list_vectors(p):
+    """
+    list_vectors : vector COMMA list_vectors
+                 | vector
+    """
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = "%s,%s" % (p[1], p[3])
 
 def p_list_cores(p):
     """

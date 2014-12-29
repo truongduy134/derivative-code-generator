@@ -6,6 +6,7 @@ tokens = (
     "NUMBER",
     "VECTOR",
     "MATRIX",
+    "CONST",
     "EXPR",
 
     # Reserved standard math functions
@@ -59,6 +60,7 @@ reserved = {
     "number" : "NUMBER",
     "vector" : "VECTOR",
     "matrix" : "MATRIX",
+    "const" : "CONST",
     "expr" : "EXPR"
 }
 
