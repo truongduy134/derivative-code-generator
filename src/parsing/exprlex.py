@@ -83,7 +83,7 @@ t_APOSTROPHE = "'"
 # Double token should have higher priority to be matched than that of
 # Integer token
 def t_DOUBLE(t):
-    "\\d+((\\.\\d*) | ((\\.\\d*)?(e(\\+|-)\\d+)?))"
+    "\\d+((\\.\\d*) | ((\\.\\d*)?(e[\\+-]\\d+)))"
     t.value = float(t.value)
     return t
 
