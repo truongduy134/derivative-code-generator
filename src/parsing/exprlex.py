@@ -80,14 +80,16 @@ t_RSQRBRAC = "\\]"
 t_COMMA = ","
 t_APOSTROPHE = "'"
 
-def t_INTEGER(t):
-    "\\d+"
-    t.value = int(t.value)
-    return t
-
+# Double token should have higher priority to be matched than that of
+# Integer token
 def t_DOUBLE(t):
     "\\d+((\\.\\d*) | ((\\.\\d*)?(e(\\+|-)\\d+)?))"
     t.value = float(t.value)
+    return t
+
+def t_INTEGER(t):
+    "\\d+"
+    t.value = int(t.value)
     return t
 
 def t_ID(t):
