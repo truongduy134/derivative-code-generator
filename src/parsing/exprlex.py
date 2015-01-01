@@ -9,6 +9,8 @@ tokens = (
     "CONST",
     "EXPR",
 
+    "MAIN",
+
     # Reserved standard math functions
     "SQRT",
     "SIN",
@@ -61,7 +63,9 @@ reserved = {
     "vector" : "VECTOR",
     "matrix" : "MATRIX",
     "const" : "CONST",
-    "expr" : "EXPR"
+    "expr" : "EXPR",
+
+    "main" : "MAIN"
 }
 
 # Rules for operators

@@ -8,4 +8,4 @@ const B_VEC = [4, 5, 6]
 vector a(3)
 
 // Main expression here
-expr = A_VEC . B_VEC # a
+expr main = A_VEC . B_VEC # a

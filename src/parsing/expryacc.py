@@ -11,7 +11,7 @@ precedence = (
 
 def p_file_description(p):
     """
-    file_description : list_const_declarations list_var_declarations expr_declaration
+    file_description : list_const_declarations list_var_declarations expr_main_declaration
     """
     p[0] = p[1] + "\n" + p[2] + "\n" + p[3]
 
@@ -55,8 +55,8 @@ def p_var_declaration(p):
         p[0] = "var %s matrix %d %d" % (p[2], p[4], p[6])
 
 def p_expr_declaration(p):
-    "expr_declaration : EXPR EQUAL expression"
-    p[0] = "model=" + p[3]
+    "expr_main_declaration : EXPR MAIN EQUAL expression"
+    p[0] = "model=" + p[4]
 
 def p_expression(p):
     """
