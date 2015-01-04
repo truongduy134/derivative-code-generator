@@ -55,8 +55,8 @@ def parse_expr_specification(program_txt):
             vector_size = int(symbol.type_info.dimension[0])
             var_list.append(Variable(
                 symbol.name, VariableType.VECTOR, (vector_size,)))
-            sympy_locals[symbol.name] = Matrix(
-                MatrixSymbol(symbol.name, vector_size, 1))
+            sympy_locals[symbol.name] = MatrixSymbol(
+                symbol.name, vector_size, 1)
         else:
             # Matrix case
             dimension = symbol.type_info.dimension
@@ -65,8 +65,8 @@ def parse_expr_specification(program_txt):
             var_list.append(Variable(
                 symbol.name, VariableType.MATRIX, (num_rows, num_cols)
             ))
-            sympy_locals[symbol.name] = Matrix(
-                MatrixSymbol(symbol.name, num_rows, num_cols))
+            sympy_locals[symbol.name] = MatrixSymbol(
+                symbol.name, num_rows, num_cols)
 
     # Main expression
     expr_str = ast_main_expr.to_sympy_str()

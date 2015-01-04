@@ -326,7 +326,7 @@ class AstExpression(object):
                 self.operands[1].to_sympy_str()
             )
         elif self.operator == AstOperator.AST_OP_CROSS:
-            result_str = "(%s).cross(%s)" % (
+            result_str = "Matrix(%s).cross(Matrix(%s))" % (
                 self.operands[0].to_sympy_str(),
                 self.operands[1].to_sympy_str()
             )
