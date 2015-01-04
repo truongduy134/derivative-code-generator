@@ -10,11 +10,11 @@ from .astdef import (
 )
 
 precedence = (
-    ('left', 'PLUS', 'MINUS'),
-    ('left', 'MUL', 'DIV', 'DOT'),
-    ('left', 'EXP', 'CROSS'),
-    ('left', 'APOSTROPHE'),
-    ('right', 'UMINUS')
+    ("left", "PLUS", "MINUS"),
+    ("left", "MUL", "DIV", "DOT"),
+    ("left", "EXP", "CROSS"),
+    ("left", "APOSTROPHE"),
+    ("right", "UMINUS")
 )
 
 environment = {}        # Map a string which is a name of an atom to its type
