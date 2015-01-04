@@ -37,7 +37,6 @@ def parse_expr_specification(program_txt):
     """
     const_list, symbol_list, ast_main_expr = expryacc.parse(program_txt)
 
-    expr_str = ""
     var_list = []
     sympy_locals = {}
 
