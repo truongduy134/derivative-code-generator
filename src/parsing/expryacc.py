@@ -133,14 +133,16 @@ def p_vector_index(p):
                  | LPAREN expression RPAREN LSQRBRAC expression RSQRBRAC
     """
     operands = []
+    symbol_zero = AstSymbol("0", AstExprType(AstExprType.AST_NUMBER_SYMBOL, ()))
+    expr_zero = AstExpression(AstOperator.AST_OP_SYMBOL, [symbol_zero])
     if len(p) == 5:
         indexed_src = AstExpression(
             AstOperator.AST_OP_SYMBOL,
-            AstSymbol(p[1], environment[p[1]])
+            [AstSymbol(p[1], environment[p[1]])]
         )
-        operands = [indexed_src, p[3], 0]
+        operands = [indexed_src, p[3], expr_zero]
     else:
-        operands = [p[2], p[5], 0]
+        operands = [p[2], p[5], expr_zero]
     p[0] = AstExpression(AstOperator.AST_OP_INDEXING, operands)
 
 def p_atom(p):

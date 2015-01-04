@@ -336,7 +336,7 @@ class AstExpression(object):
             index_strs = [operand.to_sympy_str()
                           for operand in self.operands[1:]]
             result_str = "(%s)[%s]" % (
-                self.operands[0].get_sympy_str(),
+                self.operands[0].to_sympy_str(),
                 ','.join(index_strs)
             )
         elif self.operator == AstOperator.AST_OP_TRANSPOSE_SHORT:
