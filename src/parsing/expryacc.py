@@ -239,13 +239,3 @@ def parse(program_text):
     """ Parses the expression description program
     """
     return parser.parse(program_text)
-
-"""
-def main():
-    text = open("firstExpr.txt", "r").read()
-    result = parser.parse(text)
-    print result
-
-if __name__ == "__main__":
-    main()
-"""
