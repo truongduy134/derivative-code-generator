@@ -2,6 +2,7 @@ import sympy
 from sympy import Symbol, MatrixSymbol, Matrix
 
 import parsing.expryacc as expryacc
+from .astdef import AstExprType
 
 from common.vardef import VariableType, Variable
 
@@ -34,46 +35,42 @@ def parse_expr_specification(program_txt):
                         used by the expression, and second element is a sympy
                         expression object
     """
-    program_lines = expryacc.parse(program_txt)
-    print program_lines
+    const_list, symbol_list, ast_main_expr = expryacc.parse(program_txt)
+
     expr_str = ""
     var_list = []
     sympy_locals = {}
 
-    for line in program_lines.split("\n"):
-        if "var" in line:
-            components = line.split()[1:]
-            if len(components) > 1:
-                if components[1] == "vector":
-                    vector_size = int(components[2])
-                    var_list.append(Variable(
-                        components[0], VariableType.VECTOR, (vector_size,)))
-                    sympy_locals[components[0]] = Matrix(
-                        MatrixSymbol(components[0], vector_size, 1))
-                if components[1] == "matrix":
-                    num_rows = int(components[2])
-                    num_cols = int(components[3])
-                    var_list.append(Variable(
-                        components[0], VariableType.MATRIX, (num_rows, num_cols)
-                    ))
-                    sympy_locals[components[0]] = Matrix(
-                        MatrixSymbol(components[0], num_rows, num_cols))
-            else:
-                var_list.append(
-                    Variable(components[0], VariableType.NUMBER, ()))
-                sympy_locals[components[0]] = Symbol(components[0])
-        elif "model" in line:
-                components = line.split('=')
-                expr_str = components[1]
-        else:
-            if "const" in line:
-                components = line.split('=')
-                expr_str = components[1]
-                const_name = components[0].split()[1]
-                expr_value = sympy.sympify(expr_str)
-                if not is_const_expr(expr_value):
-                    raise "Right hand-side is not a constant in constant declaration"
-                sympy_locals[const_name] = expr_value
+    for constant in const_list:
+        expr_value = sympy.sympify(constant.value.to_sympy_str())
+        if not is_const_expr(expr_value):
+            raise "Right hand-side is not a constant in constant declaration"
+        sympy_locals[constant.name] = expr_value
 
+    for symbol in symbol_list:
+        if symbol.type_info.type == AstExprType.AST_NUMBER_SYMBOL:
+            var_list.append(
+                Variable(symbol.name, VariableType.NUMBER, ()))
+            sympy_locals[symbol.name] = Symbol(symbol.name)
+        elif symbol.type_info.type == AstExprType.AST_VECTOR_SYMBOL:
+            vector_size = int(symbol.type_info.dimension[0])
+            var_list.append(Variable(
+                symbol.name, VariableType.VECTOR, (vector_size,)))
+            sympy_locals[symbol.name] = Matrix(
+                MatrixSymbol(symbol.name, vector_size, 1))
+        else:
+            # Matrix case
+            dimension = symbol.type_info.dimension
+            num_rows = int(dimension[0])
+            num_cols = int(dimension[1])
+            var_list.append(Variable(
+                symbol.name, VariableType.MATRIX, (num_rows, num_cols)
+            ))
+            sympy_locals[symbol.name] = Matrix(
+                MatrixSymbol(symbol.name, num_rows, num_cols))
+
+    # Main expression
+    expr_str = ast_main_expr.to_sympy_str()
+    print expr_str
     sympy_expr = sympy.sympify(expr_str, sympy_locals)
     return (var_list, sympy_expr)
