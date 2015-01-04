@@ -194,7 +194,6 @@ def p_list_cores(p):
     if len(p) == 3:
         p[0] = [p[1].name] + p[2]
     else:
-        #p[0] = ""
         p[0] = []
 
 def p_rest_list_cores(p):
@@ -214,7 +213,7 @@ def p_core(p):
          | INTEGER
     """
     core_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
-    if type(p[1]) == "str":
+    if type(p[1]) == str:
         core_type = environment[p[1]]
     p[0] = AstSymbol(str(p[1]), core_type)
 

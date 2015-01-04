@@ -33,9 +33,9 @@ class AstExprType(object):
     """
 
     # Enum constants for different types
-    AST_NUMBER_SYMBOL = 2
-    AST_VECTOR_SYMBOL = 3
-    AST_MATRIX_SYMBOL = 4
+    AST_NUMBER_SYMBOL = 1
+    AST_VECTOR_SYMBOL = 2
+    AST_MATRIX_SYMBOL = 3
 
     def __init__(self, expr_type, dimension):
         """ Class constructor
@@ -238,6 +238,14 @@ class AstExpression(object):
         expr_type : An instance of AstExprType indicating the evaluated type
                     of the whole expression
         name : A string representing name of an expression
+
+    Protected object member attributes:
+        _size_one_mat : A boolean flag indicating whether the true type is
+                         is a vector / matrix of a single element. In our
+                         expression language, all vectors / matrices of size 1
+                         are treated as AST_NUMBER_SYMBOL. However, the
+                         difference may matter when generating strings in other
+                         languages (such as sympy)
     """
 
     def __init__(self, operator, operands, name=None):
@@ -245,61 +253,62 @@ class AstExpression(object):
         """
         self.operator = operator
         self.operands = operands
-        self.expr_type = self.__get_expr_type()
+        self._size_one_mat = False
+        self.__set_expr_type()
         if name is None:
             self.name = ""
         else:
             self.name = name
 
-    def __get_expr_type(self):
-        """ Gets the type of the result of the expression
-
-        Returns:
-            An instance of AstExprType indicating the type of the result of
-            the expression
+    def __set_expr_type(self):
+        """ Determines the type of the result of the expression.
+        Updates expr_type and __size_one_mat attributes
         """
-        result_type = None
         if self.operator == AstOperator.AST_OP_SYMBOL:
-            result_type = self.operands[0].type_info
+            self.expr_type = self.operands[0].type_info
         elif self.operator == AstOperator.AST_OP_UMINUS:
-            result_type = self.operands[0].expr_type
+            self.expr_type = self.operands[0].expr_type
         elif (self.operator == AstOperator.AST_OP_TRANSPOSE or
               self.operator == AstOperator.AST_OP_TRANSPOSE_SHORT):
-            result_type = AstExprType(
-                self.operands[0].expr_type.type,
+            # Vector variables are column vectors. We treat row vectors
+            # as matrix variables
+            self.expr_type = AstExprType(
+                AstExprType.AST_MATRIX_SYMBOL,
                 self.operands[0].expr_type.dimension[::-1]
             )
         elif AstOperator.is_func_ops(self.operator):
             # Besides transpose, currently all other functions map 1 real
             # number to a real number
-            result_type = self.operands[0].expr_type
+            self.expr_type = self.operands[0].expr_type
         elif self.operator == AstOperator.AST_OP_DOT:
-            result_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
+            self.expr_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
         elif self.operator == AstOperator.AST_OP_INDEXING:
-            result_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
+            self.expr_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
         elif self.operator == AstOperator.AST_OP_MUL:
             # Hacking here
-            if (self.operands[0].expr_type.type ==
-                    AstExprType.AST_NUMBER_SYMBOL):
-                result_type = self.operands[1].expr_type
+            if self.operands[0].expr_type.type == AstExprType.AST_NUMBER_SYMBOL:
+                self.expr_type = self.operands[1].expr_type
             elif (self.operands[1].expr_type.type ==
                   AstExprType.AST_NUMBER_SYMBOL):
-                result_type = self.operands[0].expr_type
+                self.expr_type = self.operands[0].expr_type
             else:
                 # Multiplication between vector and matrix
                 new_dimension = (
                     self.operands[0].expr_type.dimension[0],
                     self.operands[1].expr_type.dimension[1]
                 )
-                result_type = AstExprType(
+                self.expr_type = AstExprType(
                     AstExprType.AST_MATRIX_SYMBOL,
                     new_dimension
                 )
         else:
             # Other binary operator
-            result_type = self.operands[0].expr_type
-        return result_type
+            self.expr_type = self.operands[0].expr_type
 
+        if (self.expr_type.type != AstExprType.AST_NUMBER_SYMBOL and
+                self.expr_type.is_single_member()):
+            self.expr_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
+            self._size_one_mat = True
 
     def to_sympy_str(self):
         """ Returns a string of the expression following sympy syntax which can
@@ -346,8 +355,7 @@ class AstExpression(object):
                 self.operands[1].to_sympy_str()
             )
 
-        if (self.expr_type.type != AstExprType.AST_NUMBER_SYMBOL
-                and self.expr_type.is_single_member()):
+        if self._size_one_mat:
             result_str = "(%s)[0,0]" % result_str
 
         return result_str
