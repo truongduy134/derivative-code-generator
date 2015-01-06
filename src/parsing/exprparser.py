@@ -1,5 +1,5 @@
 import sympy
-from sympy import Symbol, MatrixSymbol, Matrix
+from sympy import Symbol, MatrixSymbol
 
 import parsing.expryacc as expryacc
 from .astdef import AstExprType
