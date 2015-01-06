@@ -309,8 +309,6 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
         elif expr_op_type in [OperatorType.ADD_REAL, OperatorType.MUL_REAL]:
             op_char = " + " if expr_op_type == OperatorType.ADD_REAL else " * "
             statement_str += op_char.join(operand_names)
-        elif expr_op_type in OperatorType.SINGLETON_OP_TYPE:
-            statement_str += operand_names[0]
         else:
             # Operators in which we do not know how to generate code
             raise Exception(
