@@ -129,6 +129,11 @@ class AstOperator(object):
     # Indexing
     AST_OP_INDEXING = 19
 
+    # Looping
+    AST_OP_LOOP_SUM = 20
+    AST_OP_LOOP_PRODUCT = 21
+    AST_OP_RANGE = 22
+
     __dict_op_to_sympy_str = {
         AST_OP_ADD: "+",
         AST_OP_SUB: "-",
@@ -301,6 +306,12 @@ class AstExpression(object):
                     AstExprType.AST_MATRIX_SYMBOL,
                     new_dimension
                 )
+        elif (self.operator == AstOperator.AST_OP_LOOP_SUM or
+              self.operator == AstOperator.AST_OP_LOOP_PRODUCT):
+            # Hacking here. For now, loop over only number
+            self.expr_type = self.operands[0].expr_type
+        elif self.operator == AstOperator.AST_OP_RANGE:
+            self.expr_type = AstExprType(AstExprType.AST_VECTOR_SYMBOL, (2, 1))
         else:
             # Other binary operator
             self.expr_type = self.operands[0].expr_type
@@ -346,6 +357,21 @@ class AstExpression(object):
             result_str = "%s(%s)" % (
                 AstOperator.get_sympy_str(self.operator),
                 ",".join(operand_strs)
+            )
+        elif self.operator == AstOperator.AST_OP_RANGE:
+            result_str = "(%s,%s,%s)" % (
+                self.operands[0].to_sympy_str(),
+                self.operands[1].to_sympy_str(),
+                self.operands[2].to_sympy_str()
+            )
+        elif (self.operator == AstOperator.AST_OP_LOOP_SUM or
+              self.operator == AstOperator.AST_OP_LOOP_PRODUCT):
+            sympy_func_str = "Sum"
+            if self.operator == AstOperator.AST_OP_LOOP_PRODUCT:
+                sympy_func_str = "Product"
+            result_str = "%s(%s)" % (
+                sympy_func_str,
+                ",".join([operand.to_sympy_str() for operand in self.operands])
             )
         else:
             # The rest of binary operators (+, -, /, *, etc.)

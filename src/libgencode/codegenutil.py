@@ -1,4 +1,4 @@
-from sympy import Add, Mul, Pow, Symbol, sin, cos, tan, cot, log
+from sympy import Add, Mul, Pow, Symbol, sin, cos, tan, cot, log, Sum, Product
 from sympy.matrices.expressions.matexpr import MatrixElement
 
 from common.vardef import VariableType
@@ -18,9 +18,23 @@ class OperatorType(object):
     TAN_REAL = 9
     COT_REAL = 10
     LOG_REAL = 11
+    SUM_LOOP = 12
+    PRODUCT_LOOP = 13
 
     # An array containing singleton operator type
-    SINGLETON_OP_TYPE = [NUMBER, MATRIX, SYMBOL]
+    __SINGLETON_OP_TYPE = [NUMBER, MATRIX, SYMBOL]
+
+    @staticmethod
+    def is_singleton_op(op_code):
+        """ Checks if the input operator code is of singleton type (i.e. it is
+        special operator for a single number, or a symbol, or a matrix access)
+
+        Args:
+            op_code : an enum value defined in OperatorType class
+        Returns:
+            True if the input operator is of singleton type. False otherwise
+        """
+        return op_code in OperatorType.__SINGLETON_OP_TYPE
 
 class IndentType(object):
     """ An enum class for identation types (by space or by tab)
@@ -153,6 +167,10 @@ def get_operator_type(sympy_expr):
         return OperatorType.COT_REAL
     if operator == log:
         return OperatorType.LOG_REAL
+    if operator == Sum:
+        return OperatorType.SUM_LOOP
+    if operator == Product:
+        return OperatorType.PRODUCT_LOOP
     return OperatorType.UNKNOWN
 
 def get_java_func_declaration(

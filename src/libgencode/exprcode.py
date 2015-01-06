@@ -80,30 +80,6 @@ class ExprCodeGenerator(object):
         pass
 
     @abstractmethod
-    def _gen_code_operator(
-            self,
-            op_type,
-            operand_names,
-            result_holder_name,
-            file_handler):
-        """ Generates code for operators
-        Subclass should implement this method to generate code in a specific
-        programming language
-        Args:
-            op_type : a variable of type OperatorType indicating operator type
-            operand_names : a list of strings of operand names
-            result_holder_name : a string for a variable name that holds the
-                final result
-            file_handler : an instance of FileCodeWriter that handles writing
-                           generated code to a file.
-        Example:
-            self._gen_code_operator(OperatorType.ADD_REAL, ['a', 'b', 'c'],
-                'result', outfile) generates code for the statement
-                result = a + b + c
-        """
-        pass
-
-    @abstractmethod
     def _gen_return_code(self, result_holder_name, file_handler):
         """ Generates code at the end of function (for returning results, etc.)
         Subclass should implement this method to generate code in a specific
@@ -117,21 +93,12 @@ class ExprCodeGenerator(object):
         pass
 
     @abstractmethod
-    def _gen_arr_access_code(self, var_obj, index_tuple):
-        """ Generates code for array / matrix element access
-        Subclass should implement this method to generate code in a specific
-        programming language
-        Args:
-            var_obj : an object containing information about the
-                      array / matrix variable, such as name, type, dimension
-            index_tuple : a tuple indicating the index of the element accessed
-        Returns:
-            A string representing the code to access array / matrix element
-        """
-        pass
-
     def _gen_code_expr(self, sympy_expr, file_handler):
         """ Generates code for a function to evaluate input expression
+        if necessary. If the expression is a singleton, no code is generated
+        Subclass should implement this method to generate code in a specific
+        programming language
+
         Args:
             sympy_expr : a sympy expression that needs code generation
             file_handler : an instance of FileCodeWriter that handles writing
@@ -140,41 +107,17 @@ class ExprCodeGenerator(object):
             A string representing the name of the variable holding the final
             result when evaluting the expression
         Example:
-            d = self._gen_code_expr(a + b * c, file_handler) generates code to
-            compute the expression a + b * c; and d is the variable name such
+            1) d = self._gen_code_expr(a + b * c, file_handler) generates code
+            to compute the expression a + b * c; and d is the variable name such
             that d = a + b * c
+            2) d = self._gen_code_expr(a, file_handler) does not generate
+            any code. It simply returns a string 'a' representing the variable
+            holding the final value
+            3) d = self._gen_code_expr(m[0][5], file_handler) does not
+            generate any code. It simply return a string 'm[0][5]'
+            representing the variable holding final value
         """
-        operands = sympy_expr.args
-        expr_op_type = codegenutil.get_operator_type(sympy_expr)
-        operand_names = []
-
-        if expr_op_type in OperatorType.SINGLETON_OP_TYPE:
-            # For these special operator type (e.g. expr = 1, expr = v,
-            # expr = M), the operand is the expression itself
-            operands = (sympy_expr,)
-
-        for operand in operands:
-            operand_type = codegenutil.get_operator_type(operand)
-            if operand_type == OperatorType.NUMBER:
-                operand_names.append(str(operand.evalf()))
-            elif operand_type == OperatorType.SYMBOL:
-                operand_names.append(str(operand))
-            elif operand_type == OperatorType.MATRIX:
-                var_name = operand.args[0].name
-                index_tuple = operand.args[1:]
-                operand_names.append(self._gen_arr_access_code(
-                    self._var_dict[var_name], index_tuple))
-            else:
-                operand_names.append(
-                    self._gen_code_expr(operand, file_handler))
-
-        temp_var_name = self._get_nxt_temp_var_name()
-        self._gen_code_operator(
-            expr_op_type,
-            operand_names,
-            temp_var_name,
-            file_handler)
-        return temp_var_name
+        pass
 
     def gen_code(self, file_handler):
         """ Generates code for a function to evaluate the input expression
@@ -242,7 +185,7 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
         file_handler.untab()
         file_handler.write("}\n\n")
 
-    def _gen_arr_access_code(
+    def __gen_arr_access_code(
             self,
             var_obj,
             index_tuple):
@@ -266,46 +209,113 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
                 code += "[%d]" % index
         return code
 
-    def _gen_code_operator(
-            self,
-            op_type,
-            operand_names,
-            result_holder_name,
-            file_handler):
-        """ Generates Java code for operators
+    def __gen_code_loop(self, sympy_expr, file_handler):
+        """ Generates Java code for a function to evaluate loop operation (e.g.
+        taking sum or product over a sequence of elements)
+
         Args:
-            op_type : a variable of type OperatorType indicating operator type
-            operand_names : a list of strings of operand names
-            result_holder_name : a string for a variable name that holds the
-                final result
+            sympy_expr : a sympy expression that needs code generation
             file_handler : an instance of FileCodeWriter that handles writing
                            generated code to a file.
-        Example:
-            self._gen_code_operator(OperatorType.ADD_REAL, ['a', 'b', 'c'],
-                'result', outfile) generates code for the statement
-                result = a + b + c
+        Returns:
+            A string representing the name of the variable holding the final
+            result when evaluating the expression
         """
-        statement_str = "double %s = " % result_holder_name
-        if op_type == OperatorType.POW_REAL:
+        operands = sympy_expr.args
+        expr_op_type = codegenutil.get_operator_type(sympy_expr)
+        temp_var_name = self._get_nxt_temp_var_name()
+
+        init_value = 0.0
+        if expr_op_type == OperatorType.PRODUCT_LOOP:
+            init_value = 1.0
+        file_handler.write("double %s = %f;\n" % (temp_var_name, init_value))
+        for loop_range in operands[1:]:
+            var_loop = str(loop_range[0])
+            start_val = str(loop_range[1])
+            if codegenutil.get_operator_type(loop_range[1]) == OperatorType.NUMBER:
+                start_val = str(int(loop_range[1].evalf()))
+            end_val = str(loop_range[2])
+            if codegenutil.get_operator_type(loop_range[2]) == OperatorType.NUMBER:
+                end_val = str(int(loop_range[2].evalf()))
+            step = "1"
+            loop_statement = "for (int %s = %s; %s <= %s; %s += %s) {\n" % (
+                var_loop, start_val, var_loop, end_val, var_loop, step)
+            file_handler.write(loop_statement)
+            file_handler.tab()
+
+        inner_temp_var_name = self._gen_code_expr(operands[0], file_handler)
+        op_str = "+="
+        if expr_op_type == OperatorType.PRODUCT_LOOP:
+            op_str = "*="
+        file_handler.write("%s %s %s;\n" % (
+            temp_var_name, op_str, inner_temp_var_name))
+
+        for i in xrange(len(operands[1:])):
+            file_handler.untab()
+            file_handler.write("}\n")
+
+        return temp_var_name
+
+    def _gen_code_expr(self, sympy_expr, file_handler):
+        """ Generates Java code for a function to evaluate input expression
+        if necessary. If the expression is a singleton, no code is generated
+
+        Args:
+            sympy_expr : a sympy expression that needs code generation
+            file_handler : an instance of FileCodeWriter that handles writing
+                           generated code to a file.
+        Returns:
+            A string representing the name of the variable holding the final
+            result when evaluating the expression
+        """
+        expr_op_type = codegenutil.get_operator_type(sympy_expr)
+
+        if OperatorType.is_singleton_op(expr_op_type):
+            if expr_op_type == OperatorType.NUMBER:
+                final_var_str = str(sympy_expr.evalf())
+            elif expr_op_type == OperatorType.SYMBOL:
+                final_var_str = str(sympy_expr)
+            else:
+                # Matrix / Vector access
+                var_name = sympy_expr.args[0].name
+                index_tuple = sympy_expr.args[1:]
+                final_var_str = self.__gen_arr_access_code(
+                    self._var_dict[var_name], index_tuple)
+            return final_var_str
+
+        if expr_op_type in [OperatorType.SUM_LOOP, OperatorType.PRODUCT_LOOP]:
+            # Handle loop operation seperately
+            return self.__gen_code_loop(sympy_expr, file_handler)
+
+        # Sympy expression is not a singleton nor loop operation
+        final_var_str = self._get_nxt_temp_var_name()
+        operands = sympy_expr.args
+        operand_names = [self._gen_code_expr(operand, file_handler)
+                         for operand in operands]
+
+        statement_str = "double %s = " % final_var_str
+        if expr_op_type == OperatorType.POW_REAL:
             statement_str += "Math.pow(%s, %s)" % (
                 operand_names[0], operand_names[1])
-        elif op_type == OperatorType.LOG_REAL:
+        elif expr_op_type == OperatorType.LOG_REAL:
             statement_str += "Math.log(%s)" % operand_names[0]
-        elif op_type in JavaExprCodeGenerator.SUPPORT_TRIGO_FUNCS:
+        elif expr_op_type in JavaExprCodeGenerator.SUPPORT_TRIGO_FUNCS:
             statement_str += "%s(%s)" % (
-                JavaExprCodeGenerator.SUPPORT_TRIGO_FUNCS[op_type],
+                JavaExprCodeGenerator.SUPPORT_TRIGO_FUNCS[expr_op_type],
                 operand_names[0])
-        elif op_type == OperatorType.COT_REAL:
+        elif expr_op_type == OperatorType.COT_REAL:
             statement_str += "Math.sin(%s) / Math.cos(%s)" % (
                 operand_names[0], operand_names[0])
-        elif op_type in [OperatorType.ADD_REAL, OperatorType.MUL_REAL]:
-            op_char = " + " if op_type == OperatorType.ADD_REAL else " * "
+        elif expr_op_type in [OperatorType.ADD_REAL, OperatorType.MUL_REAL]:
+            op_char = " + " if expr_op_type == OperatorType.ADD_REAL else " * "
             statement_str += op_char.join(operand_names)
-        elif op_type in OperatorType.SINGLETON_OP_TYPE:
+        elif expr_op_type in OperatorType.SINGLETON_OP_TYPE:
             statement_str += operand_names[0]
         else:
             # Operators in which we do not know how to generate code
-            raise Exception("Cannot generate code for operator %s" % op_type)
+            raise Exception(
+                "Cannot generate code for operator %s" % expr_op_type)
 
         statement_str += ";\n"
         file_handler.write(statement_str)
+        return final_var_str

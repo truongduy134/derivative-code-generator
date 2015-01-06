@@ -11,6 +11,12 @@ tokens = (
 
     "MAIN",
 
+    # Reserved loop keywords
+    "FOR",
+    "IN",
+    "SUM",
+    "PRODUCT",
+
     # Reserved standard math functions
     "SQRT",
     "SIN",
@@ -64,6 +70,12 @@ reserved = {
     "matrix" : "MATRIX",
     "const" : "CONST",
     "expr" : "EXPR",
+
+    # Reserved loop keywords,
+    "sum" : "SUM",
+    "product" : "PRODUCT",
+    "for" : "FOR",
+    "in" : "IN",
 
     "main" : "MAIN"
 }

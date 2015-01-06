@@ -43,7 +43,8 @@ def parse_expr_specification(program_txt):
     for constant in const_list:
         expr_value = sympy.sympify(constant.value.to_sympy_str())
         if not is_const_expr(expr_value):
-            raise "Right hand-side is not a constant in constant declaration"
+            raise Exception(
+                "Right hand-side is not a constant in constant declaration")
         sympy_locals[constant.name] = expr_value
 
     for symbol in symbol_list:

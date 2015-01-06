@@ -92,6 +92,7 @@ def p_expression(p):
                | expression APOSTROPHE
                | MINUS expression %prec UMINUS
                | math_func_call
+               | loop_expression
                | vector_index
                | matrix_index
                | atom
@@ -113,6 +114,38 @@ def p_expression(p):
     else:
         # Binary operator
         p[0] = AstExpression(AstOperator.get_binary_op(p[2]), [p[1], p[3]])
+
+def p_loop_expression(p):
+    """
+    loop_expression : for_statements loop_func LPAREN expression RPAREN
+    """
+    op_type = AstOperator.AST_OP_LOOP_SUM
+    if p[2] == "product":
+        op_type = AstOperator.AST_OP_LOOP_PRODUCT
+    p[0] = AstExpression(op_type, [p[4]] + p[1])
+
+def p_for_statements(p):
+    """
+    for_statements : for_statement for_statements
+                   | for_statement
+    """
+    if len(p) == 2:
+        p[0] = [p[1]]
+    else:
+        p[0] = [p[1]] + p[2]
+
+def p_for_statement(p):
+    """
+    for_statement : FOR ID IN integer_range
+    """
+    loop_symbol = AstSymbol(
+        p[2],
+        AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
+    )
+    p[0] = AstExpression(
+        AstOperator.AST_OP_RANGE,
+        [AstExpression(AstOperator.AST_OP_SYMBOL, [loop_symbol])] + p[4]
+    )
 
 def p_math_func_call(p):
     """
@@ -144,6 +177,22 @@ def p_vector_index(p):
     else:
         operands = [p[2], p[5], expr_zero]
     p[0] = AstExpression(AstOperator.AST_OP_INDEXING, operands)
+
+def p_integer_range(p):
+    """
+    integer_range : LSQRBRAC integer_class COMMA integer_class RSQRBRAC
+    """
+    p[0] = [
+        AstExpression(AstOperator.AST_OP_SYMBOL, [p[2]]),
+        AstExpression(AstOperator.AST_OP_SYMBOL, [p[4]])
+    ]
+
+def p_integer_class(p):
+    """
+    integer_class : ID
+                  | INTEGER
+    """
+    p[0] = AstSymbol(str(p[1]), AstExprType(AstExprType.AST_NUMBER_SYMBOL, ()))
 
 def p_atom(p):
     """
@@ -228,6 +277,13 @@ def p_math_func(p):
               | COT
               | LN
               | TRANSPOSE
+    """
+    p[0] = p[1]
+
+def p_loop_func(p):
+    """
+    loop_func : SUM
+              | PRODUCT
     """
     p[0] = p[1]
 
