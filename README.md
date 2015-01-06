@@ -6,7 +6,7 @@ The script can be used to generate code (currently Java supported) to calculate 
 TO-DO Lists
 =========================
 - Support declaring matrices / vectors with variable sizes
-- Support looping and summation (or product) of many operands
+- ~~Support looping and summation (or product) of many operands~~
 - ~~Allow constant declaration in expression description language~~
 - ~~Convert 1 x 1 matrix result to a number~~
 - ~~Construct AST as a result of applying expryacc (Refactor whole expryacc.py and exprparser.py)~~
