@@ -6,20 +6,20 @@ from common.vardef import VariableType
 class OperatorType(object):
     """ An enum class for different operator / operand types
     """
-    UNKNOWN = 0
-    NUMBER = 1
-    SYMBOL = 2
-    MATRIX = 3
-    ADD_REAL = 4
-    MUL_REAL = 5
-    POW_REAL = 6
-    SIN_REAL = 7
-    COS_REAL = 8
-    TAN_REAL = 9
-    COT_REAL = 10
-    LOG_REAL = 11
-    SUM_LOOP = 12
-    PRODUCT_LOOP = 13
+    (UNKNOWN,
+     NUMBER,
+     SYMBOL,
+     MATRIX,
+     ADD_REAL,
+     MUL_REAL,
+     POW_REAL,
+     SIN_REAL,
+     COS_REAL,
+     TAN_REAL,
+     COT_REAL,
+     LOG_REAL,
+     SUM_LOOP,
+     PRODUCT_LOOP) = range(14)
 
     # An array containing singleton operator type
     __SINGLETON_OP_TYPE = [NUMBER, MATRIX, SYMBOL]
