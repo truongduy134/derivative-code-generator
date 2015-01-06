@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 import libgencode.codegenutil as codegenutil
-from codegenutil import OperatorType
+from .codegenutil import OperatorType
 from common.vardef import VariableType
 
 class ExprCodeGenerator(object):
@@ -250,7 +250,7 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
         file_handler.write("%s %s %s;\n" % (
             temp_var_name, op_str, inner_temp_var_name))
 
-        for i in xrange(len(operands[1:])):
+        for _ in xrange(len(operands[1:])):
             file_handler.untab()
             file_handler.write("}\n")
 
