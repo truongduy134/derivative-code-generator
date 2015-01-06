@@ -10,6 +10,7 @@ TO-DO Lists
 - ~~Allow constant declaration in expression description language~~
 - ~~Convert 1 x 1 matrix result to a number~~
 - ~~Construct AST as a result of applying expryacc (Refactor whole expryacc.py and exprparser.py)~~
+- Specify list of expr variables, and list of variables used in differentation when declaring an expression
 - Restructure AST types in astdef.py
 - Unify vectors and matrices
 - Better error handling and error messages in parsing phase
