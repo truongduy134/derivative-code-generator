@@ -42,12 +42,13 @@ class DerivativeCodeGenerator(object):
         expr : A sympy symbolic expression to be differentiated
         base_func_name : A string representing name (with possible suffices)
                          of the generated partial derivative method
+        diff_var_list : A list of Variable objects used for differentiation
         modifier_list : A list of strings indicating modifiers for the
                         derivative method / function (such as static, private,
                         public, etc.)
 
     Protected object member attributes:
-        _expanded_var_list : The expanded var list.
+        _expanded_diff_var_list : The expanded diff var list.
             For example, if v is a variable matrix of size  1 x 3, we add
             v[0, 1], v[0, 2], v[0, 3] to the list. The hessian matrix is based
             on variables in this expanded list
@@ -62,6 +63,7 @@ class DerivativeCodeGenerator(object):
             var_list,
             sympy_expr,
             base_func_name=None,
+            diff_var_list=None,
             modifier_list=None):
         """ Class constructor
         """
@@ -71,18 +73,23 @@ class DerivativeCodeGenerator(object):
             self.base_func_name = DerivativeCodeGenerator.DEFAULT_BASE_FUNC_NAME
         else:
             self.base_func_name = base_func_name
+        if diff_var_list is None:
+            self.diff_var_list = self.var_list
+        else:
+            self.diff_var_list = diff_var_list
         if modifier_list is None:
             self.modifier_list = []
         else:
             self.modifier_list = modifier_list
-        # Expand the var list. For example, if v is a variable matrix of size
+        # Expand the diff_var_list (because it contains differentiation
+        # variables) . For example, if v is a variable matrix of size
         # 1 x 3, we add v[0, 1], v[0, 2], v[0, 3] to the list. The hessian
         # matrix is based on variables in this expanded list
-        self._expanded_var_list = []
-        for var_obj in self.var_list:
+        self._expanded_diff_var_list = []
+        for var_obj in self.diff_var_list:
             if var_obj.var_type == VariableType.NUMBER:
                 # Single symbol case
-                self._expanded_var_list.append(Symbol(var_obj.name))
+                self._expanded_diff_var_list.append(Symbol(var_obj.name))
             else:
                 # Matrix case
                 shape = var_obj.dimension
@@ -91,12 +98,12 @@ class DerivativeCodeGenerator(object):
                 var_mat = Matrix(MatrixSymbol(var_obj.name, shape[0], shape[1]))
                 for i in xrange(shape[0]):
                     for j in xrange(shape[1]):
-                        self._expanded_var_list.append(var_mat[i, j])
+                        self._expanded_diff_var_list.append(var_mat[i, j])
 
-    def get_num_expanded_var(self):
+    def get_num_expanded_diff_var(self):
         """ Returns the number of variables after expanding the variable list
         """
-        return len(self._expanded_var_list)
+        return len(self._expanded_diff_var_list)
 
     def get_derivative_func_name(
             self,
@@ -158,7 +165,7 @@ class DerivativeCodeGenerator(object):
             file_handler : an instance of FileCodeWriter that handles writing
                            generated code to a file.
         """
-        for var_ind in xrange(self.get_num_expanded_var()):
+        for var_ind in xrange(self.get_num_expanded_diff_var()):
             self.gen_code(file_handler, var_ind, None, True)
 
     def gen_code_all_second_order(self, file_handler):
@@ -169,8 +176,8 @@ class DerivativeCodeGenerator(object):
             file_handler : an instance of FileCodeWriter that handles writing
                            generated code to a file.
         """
-        for first_var_ind in xrange(self.get_num_expanded_var()):
-            for second_var_ind in xrange(self.get_num_expanded_var()):
+        for first_var_ind in xrange(self.get_num_expanded_diff_var()):
+            for second_var_ind in xrange(self.get_num_expanded_diff_var()):
                 self.gen_code(file_handler, first_var_ind, second_var_ind, True)
 
 class JavaDerivativeCodeGenerator(DerivativeCodeGenerator):
@@ -185,11 +192,13 @@ class JavaDerivativeCodeGenerator(DerivativeCodeGenerator):
             var_list,
             sympy_expr,
             base_func_name=None,
+            diff_var_list=None,
             modifier_list=None):
         """ Class constructor
         """
         DerivativeCodeGenerator.__init__(
-            self, var_list, sympy_expr, base_func_name, modifier_list)
+            self, var_list, sympy_expr, base_func_name,
+            diff_var_list, modifier_list)
 
     def gen_code(
             self,
@@ -214,12 +223,12 @@ class JavaDerivativeCodeGenerator(DerivativeCodeGenerator):
         """
         if second_var_ind is None:
             derivative_expr = first_order_derivative(
-                self.expr, self._expanded_var_list[first_var_ind])
+                self.expr, self._expanded_diff_var_list[first_var_ind])
         else:
             derivative_expr = second_order_derivative(
                 self.expr,
-                self._expanded_var_list[first_var_ind],
-                self._expanded_var_list[second_var_ind])
+                self._expanded_diff_var_list[first_var_ind],
+                self._expanded_diff_var_list[second_var_ind])
         func_name = self.get_derivative_func_name(
             first_var_ind, second_var_ind, auto_add_suffix)
         expr_generator = JavaExprCodeGenerator(

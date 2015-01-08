@@ -12,6 +12,7 @@ class HessianCodeGenerator(object):
         var_list : A list of Variable objects
         expr : A sympy symbolic expression
         func_name : A string representing name of the generated Hessian method
+        diff_var_list : A list of Variable objects used in differentiation
         modifier_list : A list of strings indicating modifiers for the
                         hessian method / function, and for derivative functions
                         (such as static, private, public, etc.)
@@ -30,6 +31,7 @@ class HessianCodeGenerator(object):
             var_list,
             sympy_expr,
             func_name=None,
+            diff_var_list=None,
             modifier_list=None):
         """ Class constructor
         """
@@ -39,6 +41,10 @@ class HessianCodeGenerator(object):
             self.func_name = HessianCodeGenerator.DEFAULT_FUNC_NAME
         else:
             self.func_name = func_name
+        if diff_var_list is None:
+            self.diff_var_list = self.var_list
+        else:
+            self.diff_var_list = diff_var_list
         if modifier_list is None:
             self.modifier_list = []
         else:
@@ -84,11 +90,13 @@ class JavaHessianCodeGenerator(HessianCodeGenerator):
             var_list,
             sympy_expr,
             func_name=None,
+            diff_var_list=None,
             modifier_list=None):
         """ Class constructor
         """
         HessianCodeGenerator.__init__(
-            self, var_list, sympy_expr, func_name, modifier_list)
+            self, var_list, sympy_expr, func_name,
+            diff_var_list, modifier_list)
 
     def _get_derivative_code_generator(self):
         """ Returns the derivative code generator in Java
@@ -97,6 +105,7 @@ class JavaHessianCodeGenerator(HessianCodeGenerator):
             self.var_list,
             self.expr,
             HessianCodeGenerator.DEFAULT_DERIVATIVE_NAME,
+            self.diff_var_list,
             self.modifier_list)
 
     def __gen_hessian_declaration(self, file_handler):
@@ -117,15 +126,15 @@ class JavaHessianCodeGenerator(HessianCodeGenerator):
         """
         self.__gen_hessian_declaration(file_handler)
         # Function body
-        num_var = self._diff_code_generator.get_num_expanded_var()
+        num_diff_var = self._diff_code_generator.get_num_expanded_diff_var()
         param_list = ", ".join([var.name for var in self.var_list])
         temp_mat = "__temp"
 
         file_handler.tab()
         file_handler.write("double[][] %s = new double[%d][%d];\n" % (
-            temp_mat, num_var, num_var))
-        for i in xrange(num_var):
-            for j in xrange(i, num_var):
+            temp_mat, num_diff_var, num_diff_var))
+        for i in xrange(num_diff_var):
+            for j in xrange(i, num_diff_var):
                 file_handler.write("%s[%d][%d] = %s(%s);\n" % (
                     temp_mat, i, j,
                     self._diff_code_generator.get_derivative_func_name(
