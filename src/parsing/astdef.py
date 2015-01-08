@@ -33,9 +33,10 @@ class AstExprType(object):
     """
 
     # Enum constants for different types
-    AST_NUMBER_SYMBOL = 1
-    AST_VECTOR_SYMBOL = 2
-    AST_MATRIX_SYMBOL = 3
+    (AST_NUMBER_SYMBOL
+     AST_INT_SYMBOL
+     AST_VECTOR_SYMBOL
+     AST_MATRIX_SYMBOL) = range(4)
 
     def __init__(self, expr_type, dimension):
         """ Class constructor
@@ -44,15 +45,15 @@ class AstExprType(object):
         self.dimension = dimension
 
     def is_single_member(self):
-        """ Checks if the type representing a single member structure (e.g.
+        """ Checks if the type represents a single member structure (e.g.
         a single number, a vector of size 1, a matrix of size 1 x 1)
 
         Returns:
-            True if the type representing a single member structure.
+            True if the type represents a single member structure.
             False otherwise
         """
         is_single = False
-        if self.type == AstExprType.AST_NUMBER_SYMBOL:
+        if self.is_number_type():
             is_single = True
         elif self.type == AstExprType.AST_VECTOR_SYMBOL:
             if self.dimension[0] == 1:
@@ -61,6 +62,27 @@ class AstExprType(object):
             if self.dimension[0] == 1 and self.dimension[1] == 1:
                 is_single = True
         return is_single
+
+    def is_size_one_mat_type(self):
+        """ Checks if the type represents a matrix or vector of size 1
+
+        Returns:
+            True if the type represents a matrix or vector of size 1
+            False otherwise
+        """
+        if self.is_number_type():
+            return False
+        return self.is_single_member()
+
+    def is_number_type(self):
+        """ Checks if the type represents a single real or integer number
+
+        Returns:
+            True if the type represents a single real or integer number.
+            False otherwise
+        """
+        return (self.type in
+                [AstExprType.AST_NUMBER_SYMBOL, AstExprType.AST_INT_SYMBOL])
 
 class AstSymbol(object):
     """
@@ -284,17 +306,19 @@ class AstExpression(object):
         elif AstOperator.is_func_ops(self.operator):
             # Besides transpose, currently all other functions map 1 real
             # number to a real number
-            self.expr_type = self.operands[0].expr_type
+            self.expr_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
         elif self.operator == AstOperator.AST_OP_DOT:
             self.expr_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
         elif self.operator == AstOperator.AST_OP_INDEXING:
             self.expr_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
         elif self.operator == AstOperator.AST_OP_MUL:
             # Hacking here
-            if self.operands[0].expr_type.type == AstExprType.AST_NUMBER_SYMBOL:
+            if (self.operands[0].expr_type.is_number_type() and
+                self.operands[1].expr_type.is_number_type()):
+                self.expr_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
+            elif self.operands[0].expr_type.is_number_type():
                 self.expr_type = self.operands[1].expr_type
-            elif (self.operands[1].expr_type.type ==
-                  AstExprType.AST_NUMBER_SYMBOL):
+            elif self.operands[1].expr_type.is_number_type():
                 self.expr_type = self.operands[0].expr_type
             else:
                 # Multiplication between vector and matrix
@@ -315,9 +339,10 @@ class AstExpression(object):
         else:
             # Other binary operator
             self.expr_type = self.operands[0].expr_type
+            if self.expr_type.is_number_type():
+                self.expr_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
 
-        if (self.expr_type.type != AstExprType.AST_NUMBER_SYMBOL and
-                self.expr_type.is_single_member()):
+        if self.is_size_one_mat_type():
             self.expr_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
             self._size_one_mat = True
 

@@ -199,6 +199,8 @@ def get_java_func_declaration(
             param_str += ", "
         if var.var_type == VariableType.NUMBER:
             type_decl = "double"
+        elif var.var_type == VariableType.INTEGER:
+            type_decl = "int"
         else:
             type_decl = "double" + "[]" * len(var.dimension)
         param_str += type_decl + " " + var.name

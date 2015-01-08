@@ -4,6 +4,7 @@ import ply.lex as pylex
 tokens = (
     # Reserved type keywords
     "NUMBER",
+    "INT"
     "VECTOR",
     "MATRIX",
     "CONST",
@@ -66,6 +67,7 @@ reserved = {
 
     # Reserved type keywords
     "number" : "NUMBER",
+    "int" : "INT"
     "vector" : "VECTOR",
     "matrix" : "MATRIX",
     "const" : "CONST",

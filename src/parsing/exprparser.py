@@ -52,6 +52,10 @@ def parse_expr_specification(program_txt):
             var_list.append(
                 Variable(symbol.name, VariableType.NUMBER, ()))
             sympy_locals[symbol.name] = Symbol(symbol.name)
+        elif symbol.type_info.type == AstExprType.AST_INT_SYMBOL:
+            var_list.append(
+                Variable(symbol.name, VariableType.INTEGER, ()))
+            sympy_locals[symbol.name] = Symbol(symbol.name, Integer=True)
         elif symbol.type_info.type == AstExprType.AST_VECTOR_SYMBOL:
             vector_size = int(symbol.type_info.dimension[0])
             var_list.append(Variable(

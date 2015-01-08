@@ -5,9 +5,10 @@
 class VariableType(object):
     """ An enum class for variable types (number, vector, or matrix)
     """
-    NUMBER = 0
-    VECTOR = 1
-    MATRIX = 2
+    (NUMBER,
+     INTEGER,
+     VECTOR,
+     MATRIX) = range(4)
 
 class Variable(object):
     """

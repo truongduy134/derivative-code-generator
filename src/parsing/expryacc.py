@@ -55,14 +55,16 @@ def p_list_var_declarations(p):
 def p_var_declaration(p):
     """
     var_declaration : NUMBER ID
+                    | INT ID
                     | VECTOR ID LPAREN INTEGER RPAREN
                     | MATRIX ID LPAREN INTEGER COMMA INTEGER RPAREN
     """
     if len(p) == 3:
-        p[0] = AstSymbol(
-            p[2],
-            AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
-        )
+        if p[1] == "int":
+            var_type = AstExprType(AstExprType.AST_INT_SYMBOL, ())
+        else:
+            var_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
+        p[0] = AstSymbol(p[2], var_type)
     elif len(p) == 6:
         p[0] = AstSymbol(
             p[2],
@@ -192,7 +194,7 @@ def p_integer_class(p):
     integer_class : ID
                   | INTEGER
     """
-    p[0] = AstSymbol(str(p[1]), AstExprType(AstExprType.AST_NUMBER_SYMBOL, ()))
+    p[0] = AstSymbol(str(p[1]), AstExprType(AstExprType.AST_INT_SYMBOL, ()))
 
 def p_atom(p):
     """
@@ -263,9 +265,12 @@ def p_core(p):
          | DOUBLE
          | INTEGER
     """
-    core_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
-    if type(p[1]) == str:
+    if isinstance(p[1], str):
         core_type = environment[p[1]]
+    elif isinstance(p[1], int):
+        core_type = AstExprType(AstExprType.AST_INT_SYMBOL, ())
+    else:
+        core_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
     p[0] = AstSymbol(str(p[1]), core_type)
 
 def p_math_func(p):
