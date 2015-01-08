@@ -11,6 +11,14 @@ class ExprClassCodeGenerator(object):
     functions to evaluate values of the input expression, to evaluate the
     Jacobian vector of the input expression, and to evaluate the Hessian matrix
     of the input expression.
+
+    Public object member attributes:
+        var_list : A list of Variable objects
+        expr : A sympy symbolic expression
+        class_name : A string indicating the name of the generated expression
+                     class
+        diff_var_list : A list of Variable objects used for differentiation
+                        when generating hessian and jacobian methods
     """
 
     __metaclass__ = ABCMeta
