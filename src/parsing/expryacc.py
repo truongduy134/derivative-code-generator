@@ -114,11 +114,10 @@ def p_expression(p):
     elif num_components == 3:
         if p[1] == "-":
             # expression : -expression
-            p[0] = AstExpression(AstOperator.AST_OP_UMINUS, [p[2]])
+            p[0] = AstExpression(AstOperator.UMINUS, [p[2]])
         else:
             # expression : expression' (matrix transpose)
-            p[0] = AstExpression(
-                AstOperator.AST_OP_TRANSPOSE_SHORT, [p[1]])
+            p[0] = AstExpression(AstOperator.TRANSPOSE_SHORT, [p[1]])
     elif p[1] == "(":
         # expression : (expression)
         p[0] = p[2]
@@ -130,9 +129,9 @@ def p_loop_expression(p):
     """
     loop_expression : for_statements loop_func LPAREN expression RPAREN
     """
-    op_type = AstOperator.AST_OP_LOOP_SUM
+    op_type = AstOperator.LOOP_SUM
     if p[2] == "product":
-        op_type = AstOperator.AST_OP_LOOP_PRODUCT
+        op_type = AstOperator.LOOP_PRODUCT
     p[0] = AstExpression(op_type, [p[4]] + p[1])
 
 def p_for_statements(p):
@@ -154,8 +153,8 @@ def p_for_statement(p):
         AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
     )
     p[0] = AstExpression(
-        AstOperator.AST_OP_RANGE,
-        [AstExpression(AstOperator.AST_OP_SYMBOL, [loop_symbol])] + p[4]
+        AstOperator.RANGE,
+        [AstExpression(AstOperator.SYMBOL, [loop_symbol])] + p[4]
     )
 
 def p_math_func_call(p):
@@ -169,7 +168,7 @@ def p_matrix_index(p):
     matrix_index : vector_index LSQRBRAC expression RSQRBRAC
     """
     operands = [p[1].operands[0], p[1].operands[1], p[3]]
-    p[0] = AstExpression(AstOperator.AST_OP_INDEXING, operands)
+    p[0] = AstExpression(AstOperator.INDEXING, operands)
 
 def p_vector_index(p):
     """
@@ -178,24 +177,24 @@ def p_vector_index(p):
     """
     operands = []
     symbol_zero = AstSymbol("0", AstExprType(AstExprType.AST_NUMBER_SYMBOL, ()))
-    expr_zero = AstExpression(AstOperator.AST_OP_SYMBOL, [symbol_zero])
+    expr_zero = AstExpression(AstOperator.SYMBOL, [symbol_zero])
     if len(p) == 5:
         indexed_src = AstExpression(
-            AstOperator.AST_OP_SYMBOL,
+            AstOperator.SYMBOL,
             [AstSymbol(p[1], environment[p[1]])]
         )
         operands = [indexed_src, p[3], expr_zero]
     else:
         operands = [p[2], p[5], expr_zero]
-    p[0] = AstExpression(AstOperator.AST_OP_INDEXING, operands)
+    p[0] = AstExpression(AstOperator.INDEXING, operands)
 
 def p_integer_range(p):
     """
     integer_range : LSQRBRAC integer_class COMMA integer_class RSQRBRAC
     """
     p[0] = [
-        AstExpression(AstOperator.AST_OP_SYMBOL, [p[2]]),
-        AstExpression(AstOperator.AST_OP_SYMBOL, [p[4]])
+        AstExpression(AstOperator.SYMBOL, [p[2]]),
+        AstExpression(AstOperator.SYMBOL, [p[4]])
     ]
 
 def p_integer_class(p):
@@ -210,7 +209,7 @@ def p_atom(p):
     atom : core
          | array_type
     """
-    p[0] = AstExpression(AstOperator.AST_OP_SYMBOL, [p[1]])
+    p[0] = AstExpression(AstOperator.SYMBOL, [p[1]])
 
 def p_array_type(p):
     """
