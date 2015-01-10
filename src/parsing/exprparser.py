@@ -66,9 +66,10 @@ def parse_expr_specification(program_txt):
                 symbol.name, VariableType.MATRIX, (num_rows, num_cols)
             )
             sympy_obj = MatrixSymbol(symbol.name, num_rows, num_cols)
-        var_list.append(var_obj)
-        if symbol.flag == AstSymbolFlag.NORMAL:
-            diff_var_list.append(var_obj)
+        if symbol.flag != AstSymbolFlag.USED_IN_LOOP:
+            var_list.append(var_obj)
+            if symbol.flag == AstSymbolFlag.NORMAL:
+                diff_var_list.append(var_obj)
         sympy_locals[symbol.name] = sympy_obj
 
     # Main expression

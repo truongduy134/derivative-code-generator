@@ -19,11 +19,13 @@ precedence = (
 )
 
 environment = {}        # Map a string which is a name of an atom to its type
+for_loop_vars = []
 
 def p_file_description(p):
     """
     file_description : list_const_declarations list_var_declarations expr_main_declaration
     """
+    p[2] += for_loop_vars
     p[0] = (p[1], p[2], p[3])
 
 def p_list_const_declarations(p):
@@ -150,12 +152,15 @@ def p_for_statement(p):
     """
     loop_symbol = AstSymbol(
         p[2],
-        AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
+        AstExprType(AstExprType.AST_NUMBER_SYMBOL, ()),
+        AstSymbolFlag.USED_IN_LOOP
     )
     p[0] = AstExpression(
         AstOperator.RANGE,
         [AstExpression(AstOperator.SYMBOL, [loop_symbol])] + p[4]
     )
+    for_loop_vars.append(loop_symbol)
+    environment[loop_symbol.name] = loop_symbol.type_info
 
 def p_math_func_call(p):
     """
