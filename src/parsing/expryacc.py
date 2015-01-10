@@ -6,7 +6,8 @@ from .astdef import (
     AstExprType,
     AstMainExpression,
     AstOperator,
-    AstSymbol
+    AstSymbol,
+    AstSymbolFlag
 )
 
 precedence = (
@@ -54,9 +55,19 @@ def p_list_var_declarations(p):
 
 def p_var_declaration(p):
     """
-    var_declaration : NUMBER ID
-                    | VECTOR ID LPAREN INTEGER RPAREN
-                    | MATRIX ID LPAREN INTEGER COMMA INTEGER RPAREN
+    var_declaration : basic_var_declaration
+                    | basic_var_declaration COLON NODIFF
+    """
+    p[0] = p[1]
+    if len(p) == 4:
+        # The variable is also used in differentiation
+        p[0].flag = AstSymbolFlag.NO_DIFF
+
+def p_basic_var_declaration(p):
+    """
+    basic_var_declaration : NUMBER ID
+                          | VECTOR ID LPAREN INTEGER RPAREN
+                          | MATRIX ID LPAREN INTEGER COMMA INTEGER RPAREN
     """
     if len(p) == 3:
         p[0] = AstSymbol(

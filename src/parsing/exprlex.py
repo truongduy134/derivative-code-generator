@@ -9,6 +9,8 @@ tokens = (
     "CONST",
     "EXPR",
 
+    "NODIFF",
+
     "MAIN",
 
     # Reserved loop keywords
@@ -45,6 +47,7 @@ tokens = (
     "RSQRBRAC",
     "COMMA",
     "APOSTROPHE",
+    "COLON",
 
     # Variable ID and Number
     "ID",
@@ -77,6 +80,8 @@ reserved = {
     "for" : "FOR",
     "in" : "IN",
 
+    "nodiff" : "NODIFF",
+
     "main" : "MAIN"
 }
 
@@ -97,6 +102,7 @@ t_LSQRBRAC = "\\["
 t_RSQRBRAC = "\\]"
 t_COMMA = ","
 t_APOSTROPHE = "'"
+t_COLON = "\:"
 
 # Double token should have higher priority to be matched than that of
 # Integer token

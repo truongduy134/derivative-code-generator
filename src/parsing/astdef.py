@@ -62,6 +62,16 @@ class AstExprType(object):
                 is_single = True
         return is_single
 
+class AstSymbolFlag(object):
+    """
+    An enum class that enumerates symbol flag values. For example, NO_DIFF
+    means the symbol is not used as a differentiation variable, or USED_IN_LOOP
+    means the symbol is a counter variable used in looping
+    """
+    (NORMAL,
+     NO_DIFF,
+     USED_IN_LOOP) = range(3)
+
 class AstSymbol(object):
     """
     A class that encapsulates symbol variable information used in building the
@@ -70,13 +80,18 @@ class AstSymbol(object):
     Public object member attributes:
         name : A string representing name of a symbol variable
         type_info : An instance of AstExprType indicating the variable type
+        flag : A enum value of AstSymbolFlag indicating the usage of the symbol
     """
 
-    def __init__(self, name, type_info):
+    def __init__(self, name, type_info, flag=None):
         """ Class constructor
         """
         self.name = name
         self.type_info = type_info
+        if flag is None:
+            self.flag = AstSymbolFlag.NORMAL
+        else:
+            self.flag = flag
 
 class AstConstant(object):
     """

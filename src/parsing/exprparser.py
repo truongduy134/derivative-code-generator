@@ -2,7 +2,7 @@ import sympy
 from sympy import Symbol, MatrixSymbol
 
 import parsing.expryacc as expryacc
-from .astdef import AstExprType
+from .astdef import AstExprType, AstSymbolFlag
 
 from common.vardef import VariableType, Variable
 
@@ -38,6 +38,7 @@ def parse_expr_specification(program_txt):
     const_list, symbol_list, ast_main_expr = expryacc.parse(program_txt)
 
     var_list = []
+    diff_var_list = []
     sympy_locals = {}
 
     for constant in const_list:
@@ -66,10 +67,12 @@ def parse_expr_specification(program_txt):
             )
             sympy_obj = MatrixSymbol(symbol.name, num_rows, num_cols)
         var_list.append(var_obj)
+        if symbol.flag == AstSymbolFlag.NORMAL:
+            diff_var_list.append(var_obj)
         sympy_locals[symbol.name] = sympy_obj
 
     # Main expression
     expr_str = ast_main_expr.to_sympy_str()
     print expr_str
     sympy_expr = sympy.sympify(expr_str, sympy_locals)
-    return (var_list, sympy_expr)
+    return (var_list, diff_var_list, sympy_expr)
