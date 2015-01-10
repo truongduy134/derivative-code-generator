@@ -63,6 +63,7 @@ class AstExprType(object):
                 is_single = True
         return is_single
 
+<<<<<<< HEAD
     def is_size_one_mat_type(self):
         """ Checks if the type represents a matrix or vector of size 1
 
@@ -84,6 +85,16 @@ class AstExprType(object):
         return (self.type in
                 [AstExprType.AST_NUMBER_SYMBOL, AstExprType.AST_INT_SYMBOL])
 
+class AstSymbolFlag(object):
+    """
+    An enum class that enumerates symbol flag values. For example, NO_DIFF
+    means the symbol is not used as a differentiation variable, or USED_IN_LOOP
+    means the symbol is a counter variable used in looping
+    """
+    (NORMAL,
+     NO_DIFF,
+     USED_IN_LOOP) = range(3)
+
 class AstSymbol(object):
     """
     A class that encapsulates symbol variable information used in building the
@@ -92,13 +103,18 @@ class AstSymbol(object):
     Public object member attributes:
         name : A string representing name of a symbol variable
         type_info : An instance of AstExprType indicating the variable type
+        flag : A enum value of AstSymbolFlag indicating the usage of the symbol
     """
 
-    def __init__(self, name, type_info):
+    def __init__(self, name, type_info, flag=None):
         """ Class constructor
         """
         self.name = name
         self.type_info = type_info
+        if flag is None:
+            self.flag = AstSymbolFlag.NORMAL
+        else:
+            self.flag = flag
 
 class AstConstant(object):
     """
@@ -122,81 +138,68 @@ class AstOperator(object):
     syntax tree (AST)
     """
 
-    AST_OP_SYMBOL = 0
-    AST_OP_CONST_NUMBER = 1
-    AST_OP_CONST_ARRAY = 2
-
-    # Add, subtract, divide, multiply operations
-    AST_OP_ADD = 3
-    AST_OP_SUB = 4
-    AST_OP_MUL = 5
-    AST_OP_DIV = 6
-    AST_OP_POW = 7
-    AST_OP_UMINUS = 8       # Uniary minus
-
-    # Functions
-    AST_OP_SQRT = 9
-    AST_OP_SIN = 10
-    AST_OP_COS = 11
-    AST_OP_TAN = 12
-    AST_OP_COT = 13
-    AST_OP_LN = 14
-
-    # Distinct vector and matrix operations
-    AST_OP_DOT = 15
-    AST_OP_CROSS = 16
-    AST_OP_TRANSPOSE = 17
-    AST_OP_TRANSPOSE_SHORT = 18
-
-    # Indexing
-    AST_OP_INDEXING = 19
-
-    # Looping
-    AST_OP_LOOP_SUM = 20
-    AST_OP_LOOP_PRODUCT = 21
-    AST_OP_RANGE = 22
+    (SYMBOL,
+     # Add, subtract, divide, multiply operations
+     ADD,
+     SUB,
+     MUL,
+     DIV,
+     POW,
+     UMINUS,            # Uniary minus
+     # Functions
+     SQRT,
+     SIN,
+     COS,
+     TAN,
+     COT,
+     LN,
+     # Distinct vector and matrix operations
+     DOT,
+     CROSS,
+     TRANSPOSE,
+     TRANSPOSE_SHORT,
+     # Indexing
+     INDEXING,
+     # Looping
+     RANGE,
+     LOOP_SUM,
+     LOOP_PRODUCT) = range(21)
 
     __dict_op_to_sympy_str = {
-        AST_OP_ADD: "+",
-        AST_OP_SUB: "-",
-        AST_OP_MUL: "*",
-        AST_OP_DIV: "/",
-        AST_OP_POW: "**",
-        AST_OP_UMINUS: "-",
-        AST_OP_SQRT: "sqrt",
-        AST_OP_SIN: "sin",
-        AST_OP_COS: "cos",
-        AST_OP_TAN: "tan",
-        AST_OP_COT: "cot",
-        AST_OP_LN: "log",
-        AST_OP_TRANSPOSE: "Transpose"
+        ADD: "+",
+        SUB: "-",
+        MUL: "*",
+        DIV: "/",
+        POW: "**",
+        UMINUS: "-",
+        SQRT: "sqrt",
+        SIN: "sin",
+        COS: "cos",
+        TAN: "tan",
+        COT: "cot",
+        LN: "log",
+        TRANSPOSE: "Transpose"
     }
     __dict_str_to_binary_ops = {
-        "+": AST_OP_ADD,
-        "-": AST_OP_SUB,
-        "*": AST_OP_MUL,
-        "/": AST_OP_DIV,
-        "^": AST_OP_POW,
-        ".": AST_OP_DOT,
-        "#": AST_OP_CROSS
+        "+": ADD,
+        "-": SUB,
+        "*": MUL,
+        "/": DIV,
+        "^": POW,
+        ".": DOT,
+        "#": CROSS
     }
     __dict_str_to_func_ops = {
-        "sqrt": AST_OP_SQRT,
-        "sin": AST_OP_SIN,
-        "cos": AST_OP_COS,
-        "tan": AST_OP_TAN,
-        "cot": AST_OP_COT,
-        "ln": AST_OP_LN,
-        "transpose": AST_OP_TRANSPOSE
+        "sqrt": SQRT,
+        "sin": SIN,
+        "cos": COS,
+        "tan": TAN,
+        "cot": COT,
+        "ln": LN,
+        "transpose": TRANSPOSE
     }
-    __binary_ops = [
-        AST_OP_ADD, AST_OP_SUB, AST_OP_MUL, AST_OP_DIV, AST_OP_POW,
-        AST_OP_DOT, AST_OP_CROSS
-    ]
-    __func_ops = [
-        AST_OP_SQRT, AST_OP_SIN, AST_OP_COS, AST_OP_TAN, AST_OP_COT,
-        AST_OP_LN, AST_OP_TRANSPOSE
-    ]
+    __binary_ops = [ADD, SUB, MUL, DIV, POW, DOT, CROSS]
+    __func_ops = [SQRT, SIN, COS, TAN, COT, LN, TRANSPOSE]
 
     @staticmethod
     def is_func_ops(ast_op):
@@ -213,7 +216,7 @@ class AstOperator(object):
     @staticmethod
     def get_sympy_str(ast_op):
         """ Returns the sympy string of the input operator if such string is
-        available. For example, AST_OP_POW is represented by "**" in sympy.
+        available. For example, POW is represented by "**" in sympy.
 
         Args:
             ast_op : An enum value of AstOperator
@@ -291,12 +294,12 @@ class AstExpression(object):
         """ Determines the type of the result of the expression.
         Updates expr_type and __size_one_mat attributes
         """
-        if self.operator == AstOperator.AST_OP_SYMBOL:
+        if self.operator == AstOperator.SYMBOL:
             self.expr_type = self.operands[0].type_info
-        elif self.operator == AstOperator.AST_OP_UMINUS:
+        elif self.operator == AstOperator.UMINUS:
             self.expr_type = self.operands[0].expr_type
-        elif (self.operator == AstOperator.AST_OP_TRANSPOSE or
-              self.operator == AstOperator.AST_OP_TRANSPOSE_SHORT):
+        elif (self.operator == AstOperator.TRANSPOSE or
+              self.operator == AstOperator.TRANSPOSE_SHORT):
             # Vector variables are column vectors. We treat row vectors
             # as matrix variables
             self.expr_type = AstExprType(
@@ -309,9 +312,9 @@ class AstExpression(object):
             self.expr_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
         elif self.operator == AstOperator.AST_OP_DOT:
             self.expr_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
-        elif self.operator == AstOperator.AST_OP_INDEXING:
+        elif self.operator == AstOperator.INDEXING:
             self.expr_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
-        elif self.operator == AstOperator.AST_OP_MUL:
+        elif self.operator == AstOperator.MUL:
             # Hacking here
             if (self.operands[0].expr_type.is_number_type() and
                 self.operands[1].expr_type.is_number_type()):
@@ -330,11 +333,11 @@ class AstExpression(object):
                     AstExprType.AST_MATRIX_SYMBOL,
                     new_dimension
                 )
-        elif (self.operator == AstOperator.AST_OP_LOOP_SUM or
-              self.operator == AstOperator.AST_OP_LOOP_PRODUCT):
+        elif (self.operator == AstOperator.LOOP_SUM or
+              self.operator == AstOperator.LOOP_PRODUCT):
             # Hacking here. For now, loop over only number
             self.expr_type = self.operands[0].expr_type
-        elif self.operator == AstOperator.AST_OP_RANGE:
+        elif self.operator == AstOperator.RANGE:
             self.expr_type = AstExprType(AstExprType.AST_VECTOR_SYMBOL, (2, 1))
         else:
             # Other binary operator
@@ -354,28 +357,28 @@ class AstExpression(object):
             A sympy string of the expression
         """
         result_str = ""
-        if self.operator == AstOperator.AST_OP_SYMBOL:
+        if self.operator == AstOperator.SYMBOL:
             result_str = self.operands[0].name
-        elif self.operator == AstOperator.AST_OP_DOT:
+        elif self.operator == AstOperator.DOT:
             result_str = "((%s).T*(%s))[0,0]" % (
                 self.operands[0].to_sympy_str(),
                 self.operands[1].to_sympy_str()
             )
-        elif self.operator == AstOperator.AST_OP_CROSS:
+        elif self.operator == AstOperator.CROSS:
             result_str = "Matrix(%s).cross(Matrix(%s))" % (
                 self.operands[0].to_sympy_str(),
                 self.operands[1].to_sympy_str()
             )
-        elif self.operator == AstOperator.AST_OP_UMINUS:
+        elif self.operator == AstOperator.UMINUS:
             result_str = "-(%s)" % self.operands[0].to_sympy_str()
-        elif self.operator == AstOperator.AST_OP_INDEXING:
+        elif self.operator == AstOperator.INDEXING:
             index_strs = [operand.to_sympy_str()
                           for operand in self.operands[1:]]
             result_str = "(%s)[%s]" % (
                 self.operands[0].to_sympy_str(),
                 ','.join(index_strs)
             )
-        elif self.operator == AstOperator.AST_OP_TRANSPOSE_SHORT:
+        elif self.operator == AstOperator.TRANSPOSE_SHORT:
             result_str = "(%s).T" % self.operands[0].to_sympy_str()
         elif AstOperator.is_func_ops(self.operator):
             operand_strs = [operand.to_sympy_str() for operand in self.operands]
@@ -383,16 +386,16 @@ class AstExpression(object):
                 AstOperator.get_sympy_str(self.operator),
                 ",".join(operand_strs)
             )
-        elif self.operator == AstOperator.AST_OP_RANGE:
+        elif self.operator == AstOperator.RANGE:
             result_str = "(%s,%s,%s)" % (
                 self.operands[0].to_sympy_str(),
                 self.operands[1].to_sympy_str(),
                 self.operands[2].to_sympy_str()
             )
-        elif (self.operator == AstOperator.AST_OP_LOOP_SUM or
-              self.operator == AstOperator.AST_OP_LOOP_PRODUCT):
+        elif (self.operator == AstOperator.LOOP_SUM or
+              self.operator == AstOperator.LOOP_PRODUCT):
             sympy_func_str = "Sum"
-            if self.operator == AstOperator.AST_OP_LOOP_PRODUCT:
+            if self.operator == AstOperator.LOOP_PRODUCT:
                 sympy_func_str = "Product"
             result_str = "%s(%s)" % (
                 sympy_func_str,

@@ -2,7 +2,7 @@ import sympy
 from sympy import Symbol, MatrixSymbol
 
 import parsing.expryacc as expryacc
-from .astdef import AstExprType
+from .astdef import AstExprType, AstSymbolFlag
 
 from common.vardef import VariableType, Variable
 
@@ -38,6 +38,7 @@ def parse_expr_specification(program_txt):
     const_list, symbol_list, ast_main_expr = expryacc.parse(program_txt)
 
     var_list = []
+    diff_var_list = []
     sympy_locals = {}
 
     for constant in const_list:
@@ -48,33 +49,31 @@ def parse_expr_specification(program_txt):
         sympy_locals[constant.name] = expr_value
 
     for symbol in symbol_list:
-        if symbol.type_info.type == AstExprType.AST_NUMBER_SYMBOL:
-            var_list.append(
-                Variable(symbol.name, VariableType.NUMBER, ()))
-            sympy_locals[symbol.name] = Symbol(symbol.name)
-        elif symbol.type_info.type == AstExprType.AST_INT_SYMBOL:
-            var_list.append(
-                Variable(symbol.name, VariableType.INTEGER, ()))
-            sympy_locals[symbol.name] = Symbol(symbol.name, Integer=True)
-        elif symbol.type_info.type == AstExprType.AST_VECTOR_SYMBOL:
+        symbol_type = symbol.type_info.type
+        if symbol_type == AstExprType.AST_NUMBER_SYMBOL:
+            var_obj = Variable(symbol.name, VariableType.NUMBER, ())
+            sympy_obj = Symbol(symbol.name)
+        elif symbol_type == AstExprType.AST_VECTOR_SYMBOL:
             vector_size = int(symbol.type_info.dimension[0])
-            var_list.append(Variable(
-                symbol.name, VariableType.VECTOR, (vector_size,)))
-            sympy_locals[symbol.name] = MatrixSymbol(
-                symbol.name, vector_size, 1)
+            var_obj = Variable(symbol.name, VariableType.VECTOR, (vector_size,))
+            sympy_obj = MatrixSymbol(symbol.name, vector_size, 1)
         else:
             # Matrix case
             dimension = symbol.type_info.dimension
             num_rows = int(dimension[0])
             num_cols = int(dimension[1])
-            var_list.append(Variable(
+            var_obj = Variable(
                 symbol.name, VariableType.MATRIX, (num_rows, num_cols)
-            ))
-            sympy_locals[symbol.name] = MatrixSymbol(
-                symbol.name, num_rows, num_cols)
+            )
+            sympy_obj = MatrixSymbol(symbol.name, num_rows, num_cols)
+        if symbol.flag != AstSymbolFlag.USED_IN_LOOP:
+            var_list.append(var_obj)
+            if symbol.flag == AstSymbolFlag.NORMAL:
+                diff_var_list.append(var_obj)
+        sympy_locals[symbol.name] = sympy_obj
 
     # Main expression
     expr_str = ast_main_expr.to_sympy_str()
     print expr_str
     sympy_expr = sympy.sympify(expr_str, sympy_locals)
-    return (var_list, sympy_expr)
+    return (var_list, diff_var_list, sympy_expr)

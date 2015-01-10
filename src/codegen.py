@@ -54,11 +54,13 @@ def init_argument_parser():
     )
     return arg_parser
 
-def get_code_generator(lang, var_list, sympy_expr, classname):
+def get_code_generator(lang, var_list, diff_var_list, sympy_expr, classname):
     """ Gets the corresponding code generator for the input programming language
     Args:
         lang : a string that represents a programming language
         var_list : A list of Variable objects
+        diff_var_list : A list of Variable objects that are used as
+                        differentation variables
         sympy_expr : A sympy symbolic expression
         classname : Name of the class that encapsulates expression code
 
@@ -70,15 +72,18 @@ def get_code_generator(lang, var_list, sympy_expr, classname):
     """
     normalized_lang = lang.lower()
     if normalized_lang == "java":
-        return JavaExprClassCodeGenerator(var_list, sympy_expr, classname)
+        return JavaExprClassCodeGenerator(
+            var_list, sympy_expr, classname, diff_var_list)
     else:
         raise NotImplementedError(
             "The specified language: %s is not supported" % lang)
 
-def gen_code(var_list, sympy_expr, args):
+def gen_code(var_list, diff_var_list, sympy_expr, args):
     """ Generates expression class code
     Args:
         var_list : A list of Variable objects
+        diff_var_list : A list of Variable objects that are used as
+                        differentation variables
         sympy_expr : A sympy symbolic expression
         args : An object that contains all command-line arguments passed to
                the program
@@ -89,7 +94,7 @@ def gen_code(var_list, sympy_expr, args):
         filename = ospath.splitext(filename)[0]     # Remove extension
         classname = filename[0].upper() + filename[1:]
     code_generator = get_code_generator(
-        args.lang, var_list, sympy_expr, classname)
+        args.lang, var_list, diff_var_list, sympy_expr, classname)
     output_file_path = ospath.join(
         args.dest, code_generator.default_file_name())
     with FileCodeWriter(output_file_path) as output_file:
@@ -110,9 +115,10 @@ def main():
             "The specified language: %s is not supported" % args.lang)
 
     with open(args.exprfile, "r") as input_file:
-        var_list, sympy_expr = exprparser.parse_expr_specification(
-            input_file.read())
-        gen_code(var_list, sympy_expr, args)
+        var_list, diff_var_list, sympy_expr = (
+            exprparser.parse_expr_specification(input_file.read())
+        )
+        gen_code(var_list, diff_var_list, sympy_expr, args)
 
 if __name__ == "__main__":
     main()

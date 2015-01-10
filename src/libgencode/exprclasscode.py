@@ -11,6 +11,14 @@ class ExprClassCodeGenerator(object):
     functions to evaluate values of the input expression, to evaluate the
     Jacobian vector of the input expression, and to evaluate the Hessian matrix
     of the input expression.
+
+    Public object member attributes:
+        var_list : A list of Variable objects
+        expr : A sympy symbolic expression
+        class_name : A string indicating the name of the generated expression
+                     class
+        diff_var_list : A list of Variable objects used for differentiation
+                        when generating hessian and jacobian methods
     """
 
     __metaclass__ = ABCMeta
@@ -24,7 +32,8 @@ class ExprClassCodeGenerator(object):
             self,
             var_list,
             sympy_expr,
-            class_name=None):
+            class_name=None,
+            diff_var_list=None):
         """ Class constructor
         """
         self.var_list = var_list
@@ -33,6 +42,10 @@ class ExprClassCodeGenerator(object):
             self.class_name = ExprClassCodeGenerator.DEFAULT_CLASS_NAME
         else:
             self.class_name = class_name
+        if diff_var_list is None:
+            self.diff_var_list = self.var_list
+        else:
+            self.diff_var_list = diff_var_list
 
     @abstractmethod
     def _gen_code_header(self, file_handler):
@@ -148,10 +161,12 @@ class JavaExprClassCodeGenerator(ExprClassCodeGenerator):
             self,
             var_list,
             sympy_expr,
-            class_name=None):
+            class_name=None,
+            diff_var_list=None):
         """ Class constructor
         """
-        ExprClassCodeGenerator.__init__(self, var_list, sympy_expr, class_name)
+        ExprClassCodeGenerator.__init__(
+            self, var_list, sympy_expr, class_name, diff_var_list)
 
     def _gen_code_header(self, file_handler):
         """ Generates Java code for the beginning section of a class file,
@@ -199,6 +214,7 @@ class JavaExprClassCodeGenerator(ExprClassCodeGenerator):
             self.var_list,
             self.expr,
             ExprClassCodeGenerator.DEFAULT_JACOBIAN_FUNC_NAME,
+            self.diff_var_list,
             ["public"])
         code_generator.gen_code(file_handler)
 
@@ -214,6 +230,7 @@ class JavaExprClassCodeGenerator(ExprClassCodeGenerator):
             self.var_list,
             self.expr,
             ExprClassCodeGenerator.DEFAULT_HESSIAN_FUNC_NAME,
+            self.diff_var_list,
             ["public"])
         code_generator.gen_code(file_handler)
 
