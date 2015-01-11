@@ -186,12 +186,9 @@ def p_vector_index(p):
 
 def p_integer_range(p):
     """
-    integer_range : LSQRBRAC integer_class COMMA integer_class RSQRBRAC
+    integer_range : LSQRBRAC expression COMMA expression RSQRBRAC
     """
-    p[0] = [
-        AstExpression(AstOperator.SYMBOL, [p[2]]),
-        AstExpression(AstOperator.SYMBOL, [p[4]])
-    ]
+    p[0] = [p[2], p[4]]
 
 def p_integer_class(p):
     """
