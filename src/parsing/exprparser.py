@@ -4,24 +4,8 @@ from sympy import Symbol, MatrixSymbol
 import parsing.expryacc as expryacc
 from .astdef import AstExprType, AstSymbolFlag
 
+from common import sympyutils
 from common.vardef import VariableType, Variable
-
-def is_const_expr(sympy_expr):
-    """ Checks if a sympy expression has constant values (which can be a
-    number, vector, or matrix).
-
-    Args:
-        sympy_expr : A sympy expression
-
-    Returns:
-        is_constant : A boolean value indicating whether the input expression
-                      has constant value
-    """
-    if hasattr(sympy_expr, "is_constant"):
-        is_constant = sympy_expr.is_constant()
-    else:
-        is_constant = not sympy_expr.is_symbolic()
-    return is_constant
 
 def parse_expr_specification(program_txt):
     """ Parses a program text that contains the specification of expression
@@ -43,7 +27,7 @@ def parse_expr_specification(program_txt):
 
     for constant in const_list:
         expr_value = sympy.sympify(constant.value.to_sympy_str())
-        if not is_const_expr(expr_value):
+        if not sympyutils.is_const_expr(expr_value):
             raise Exception(
                 "Right hand-side is not a constant in constant declaration")
         sympy_locals[constant.name] = expr_value

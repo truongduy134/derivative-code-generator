@@ -1,36 +1,9 @@
 from abc import ABCMeta, abstractmethod
-from sympy import Matrix, MatrixSymbol, Symbol, diff
+from sympy import Matrix, MatrixSymbol, Symbol
 
+from common import sympyutils
 from common.vardef import VariableType
 from .exprcode import JavaExprCodeGenerator
-
-def first_order_derivative(expr, first_var):
-    """ Gets the first-order partial derivative of the given sympy expression
-    Args:
-        expr : A sympy symbolic expression
-        first_var : A sympy symbol indicating the differentiation variable
-
-    Returns:
-        diff_expr : A sympy symbolic expression which is the first-order
-                    partial derivative of the input expression
-    """
-    return diff(expr + 1, first_var).doit()
-
-def second_order_derivative(expr, first_var, second_var):
-    """ Gets the second-order partial derivative of the given sympy expression
-    Args:
-        expr : A sympy symbolic expression
-        first_var : A sympy symbol indicating the first differentiation variable
-        second_var : A sympy symbol indicating the second differentiation
-                     variable
-
-    Returns:
-        diff_expr : A sympy symbolic expression which is the second-order
-                    partial derivative of the input expression
-    """
-    return first_order_derivative(
-        first_order_derivative(expr, first_var),
-        second_var)
 
 class DerivativeCodeGenerator(object):
     """
@@ -222,10 +195,10 @@ class JavaDerivativeCodeGenerator(DerivativeCodeGenerator):
                 second_var_ind (if it is not None)
         """
         if second_var_ind is None:
-            derivative_expr = first_order_derivative(
+            derivative_expr = sympyutils.first_order_derivative(
                 self.expr, self._expanded_diff_var_list[first_var_ind])
         else:
-            derivative_expr = second_order_derivative(
+            derivative_expr = sympyutils.second_order_derivative(
                 self.expr,
                 self._expanded_diff_var_list[first_var_ind],
                 self._expanded_diff_var_list[second_var_ind])
