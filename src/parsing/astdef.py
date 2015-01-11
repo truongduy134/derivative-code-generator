@@ -33,9 +33,9 @@ class AstExprType(object):
     """
 
     # Enum constants for different types
-    AST_NUMBER_SYMBOL = 1
-    AST_VECTOR_SYMBOL = 2
-    AST_MATRIX_SYMBOL = 3
+    (NUMBER,
+     VECTOR,
+     MATRIX) = range(3)
 
     def __init__(self, expr_type, dimension):
         """ Class constructor
@@ -52,9 +52,9 @@ class AstExprType(object):
             False otherwise
         """
         is_single = False
-        if self.type == AstExprType.AST_NUMBER_SYMBOL:
+        if self.type == AstExprType.NUMBER:
             is_single = True
-        elif self.type == AstExprType.AST_VECTOR_SYMBOL:
+        elif self.type == AstExprType.VECTOR:
             if self.dimension[0] == 1:
                 is_single = True
         else:
@@ -250,7 +250,7 @@ class AstExpression(object):
         _size_one_mat : A boolean flag indicating whether the true type is
                          is a vector / matrix of a single element. In our
                          expression language, all vectors / matrices of size 1
-                         are treated as AST_NUMBER_SYMBOL. However, the
+                         are treated as NUMBER. However, the
                          difference may matter when generating strings in other
                          languages (such as sympy)
     """
@@ -280,7 +280,7 @@ class AstExpression(object):
             # Vector variables are column vectors. We treat row vectors
             # as matrix variables
             self.expr_type = AstExprType(
-                AstExprType.AST_MATRIX_SYMBOL,
+                AstExprType.MATRIX,
                 self.operands[0].expr_type.dimension[::-1]
             )
         elif AstOperator.is_func_ops(self.operator):
@@ -288,15 +288,14 @@ class AstExpression(object):
             # number to a real number
             self.expr_type = self.operands[0].expr_type
         elif self.operator == AstOperator.DOT:
-            self.expr_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
+            self.expr_type = AstExprType(AstExprType.NUMBER, ())
         elif self.operator == AstOperator.INDEXING:
-            self.expr_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
+            self.expr_type = AstExprType(AstExprType.NUMBER, ())
         elif self.operator == AstOperator.MUL:
             # Hacking here
-            if self.operands[0].expr_type.type == AstExprType.AST_NUMBER_SYMBOL:
+            if self.operands[0].expr_type.type == AstExprType.NUMBER:
                 self.expr_type = self.operands[1].expr_type
-            elif (self.operands[1].expr_type.type ==
-                  AstExprType.AST_NUMBER_SYMBOL):
+            elif self.operands[1].expr_type.type == AstExprType.NUMBER:
                 self.expr_type = self.operands[0].expr_type
             else:
                 # Multiplication between vector and matrix
@@ -305,7 +304,7 @@ class AstExpression(object):
                     self.operands[1].expr_type.dimension[1]
                 )
                 self.expr_type = AstExprType(
-                    AstExprType.AST_MATRIX_SYMBOL,
+                    AstExprType.MATRIX,
                     new_dimension
                 )
         elif (self.operator == AstOperator.LOOP_SUM or
@@ -313,14 +312,14 @@ class AstExpression(object):
             # Hacking here. For now, loop over only number
             self.expr_type = self.operands[0].expr_type
         elif self.operator == AstOperator.RANGE:
-            self.expr_type = AstExprType(AstExprType.AST_VECTOR_SYMBOL, (2, 1))
+            self.expr_type = AstExprType(AstExprType.VECTOR, (2, 1))
         else:
             # Other binary operator
             self.expr_type = self.operands[0].expr_type
 
-        if (self.expr_type.type != AstExprType.AST_NUMBER_SYMBOL and
+        if (self.expr_type.type != AstExprType.NUMBER and
                 self.expr_type.is_single_member()):
-            self.expr_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
+            self.expr_type = AstExprType(AstExprType.NUMBER, ())
             self._size_one_mat = True
 
     def to_sympy_str(self):

@@ -72,20 +72,11 @@ def p_basic_var_declaration(p):
                           | MATRIX ID LPAREN INTEGER COMMA INTEGER RPAREN
     """
     if len(p) == 3:
-        p[0] = AstSymbol(
-            p[2],
-            AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
-        )
+        p[0] = AstSymbol(p[2], AstExprType(AstExprType.NUMBER, ()))
     elif len(p) == 6:
-        p[0] = AstSymbol(
-            p[2],
-            AstExprType(AstExprType.AST_VECTOR_SYMBOL, (p[4], 1))
-        )
+        p[0] = AstSymbol(p[2], AstExprType(AstExprType.VECTOR, (p[4], 1)))
     else:
-        p[0] = AstSymbol(
-            p[2],
-            AstExprType(AstExprType.AST_MATRIX_SYMBOL, (p[4], p[6]))
-        )
+        p[0] = AstSymbol(p[2], AstExprType(AstExprType.MATRIX, (p[4], p[6])))
     environment[p[0].name] = p[0].type_info
 
 def p_expr_declaration(p):
@@ -152,7 +143,7 @@ def p_for_statement(p):
     """
     loop_symbol = AstSymbol(
         p[2],
-        AstExprType(AstExprType.AST_NUMBER_SYMBOL, ()),
+        AstExprType(AstExprType.NUMBER, ()),
         AstSymbolFlag.USED_IN_LOOP
     )
     p[0] = AstExpression(
@@ -181,7 +172,7 @@ def p_vector_index(p):
                  | LPAREN expression RPAREN LSQRBRAC expression RSQRBRAC
     """
     operands = []
-    symbol_zero = AstSymbol("0", AstExprType(AstExprType.AST_NUMBER_SYMBOL, ()))
+    symbol_zero = AstSymbol("0", AstExprType(AstExprType.NUMBER, ()))
     expr_zero = AstExpression(AstOperator.SYMBOL, [symbol_zero])
     if len(p) == 5:
         indexed_src = AstExpression(
@@ -207,7 +198,7 @@ def p_integer_class(p):
     integer_class : ID
                   | INTEGER
     """
-    p[0] = AstSymbol(str(p[1]), AstExprType(AstExprType.AST_NUMBER_SYMBOL, ()))
+    p[0] = AstSymbol(str(p[1]), AstExprType(AstExprType.NUMBER, ()))
 
 def p_atom(p):
     """
@@ -227,7 +218,7 @@ def p_array_type(p):
         cols = len(p[1][0])
     p[0] = AstSymbol(
         "Matrix(%s)" % str(p[1]),
-        AstExprType(AstExprType.AST_MATRIX_SYMBOL, (rows, cols))
+        AstExprType(AstExprType.MATRIX, (rows, cols))
     )
 
 def p_matrix(p):
@@ -278,7 +269,7 @@ def p_core(p):
          | DOUBLE
          | INTEGER
     """
-    core_type = AstExprType(AstExprType.AST_NUMBER_SYMBOL, ())
+    core_type = AstExprType(AstExprType.NUMBER, ())
     if type(p[1]) == str:
         core_type = environment[p[1]]
     p[0] = AstSymbol(str(p[1]), core_type)

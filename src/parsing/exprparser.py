@@ -50,10 +50,10 @@ def parse_expr_specification(program_txt):
 
     for symbol in symbol_list:
         symbol_type = symbol.type_info.type
-        if symbol_type == AstExprType.AST_NUMBER_SYMBOL:
+        if symbol_type == AstExprType.NUMBER:
             var_obj = Variable(symbol.name, VariableType.NUMBER, ())
             sympy_obj = Symbol(symbol.name)
-        elif symbol_type == AstExprType.AST_VECTOR_SYMBOL:
+        elif symbol_type == AstExprType.VECTOR:
             vector_size = int(symbol.type_info.dimension[0])
             var_obj = Variable(symbol.name, VariableType.VECTOR, (vector_size,))
             sympy_obj = MatrixSymbol(symbol.name, vector_size, 1)
