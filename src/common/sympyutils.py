@@ -14,7 +14,7 @@ def first_order_derivative(expr, first_var):
         diff_expr : A sympy symbolic expression which is the first-order
                     partial derivative of the input expression
     """
-    return diff(expr + 1, first_var).doit()
+    return diff((expr + 1).doit(), first_var).doit()
 
 def second_order_derivative(expr, first_var, second_var):
     """ Gets the second-order partial derivative of the given sympy expression
