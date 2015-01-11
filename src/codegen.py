@@ -3,6 +3,7 @@ import os
 import os.path as ospath
 
 import parsing.exprparser as exprparser
+from common import sympyutils
 from common.vardef import Variable, VariableType
 from libgencode.codegenutil import FileCodeWriter
 from libgencode.exprclasscode import JavaExprClassCodeGenerator
@@ -118,6 +119,7 @@ def main():
         var_list, diff_var_list, sympy_expr = (
             exprparser.parse_expr_specification(input_file.read())
         )
+        sympyutils.distinguish_dummy_vars(sympy_expr)
         gen_code(var_list, diff_var_list, sympy_expr, args)
 
 if __name__ == "__main__":

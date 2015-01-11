@@ -199,14 +199,9 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
         """
         code = var_obj.name
         if var_obj.var_type == VariableType.VECTOR:
-            real_ind = 0
-            for index in index_tuple:
-                if index > 0:
-                    real_ind = index
-            code += "[%d]" % real_ind
-        else:
-            for index in index_tuple:
-                code += "[%d]" % index
+            code += "[%s]" % str(index_tuple[0])
+        elif var_obj.var_type == VariableType.MATRIX:
+            code += "[%s][%s]" % (str(index_tuple[0]), str(index_tuple[1]))
         return code
 
     def __gen_code_loop(self, sympy_expr, file_handler):
@@ -232,13 +227,9 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
         for loop_range in operands[1:]:
             var_loop = str(loop_range[0])
             start_val = str(loop_range[1])
-            if codegenutil.get_operator_type(loop_range[1]) == OperatorType.NUMBER:
-                start_val = str(int(loop_range[1].evalf()))
-            end_val = str(loop_range[2])
-            if codegenutil.get_operator_type(loop_range[2]) == OperatorType.NUMBER:
-                end_val = str(int(loop_range[2].evalf()))
+            end_val = str(loop_range[2] + 1)
             step = "1"
-            loop_statement = "for (int %s = %s; %s <= %s; %s += %s) {\n" % (
+            loop_statement = "for (int %s = %s; %s < %s; %s += %s) {\n" % (
                 var_loop, start_val, var_loop, end_val, var_loop, step)
             file_handler.write(loop_statement)
             file_handler.tab()

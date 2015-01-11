@@ -68,8 +68,8 @@ def p_var_declaration(p):
 def p_basic_var_declaration(p):
     """
     basic_var_declaration : NUMBER ID
-                          | VECTOR ID LPAREN INTEGER RPAREN
-                          | MATRIX ID LPAREN INTEGER COMMA INTEGER RPAREN
+                          | VECTOR ID LPAREN integer_and_id RPAREN
+                          | MATRIX ID LPAREN integer_and_id COMMA integer_and_id RPAREN
     """
     if len(p) == 3:
         p[0] = AstSymbol(p[2], AstExprType(AstExprType.NUMBER, ()))
@@ -273,6 +273,13 @@ def p_core(p):
     if type(p[1]) == str:
         core_type = environment[p[1]]
     p[0] = AstSymbol(str(p[1]), core_type)
+
+def p_integer_and_id(p):
+    """
+    integer_and_id : ID
+                   | INTEGER
+    """
+    p[0] = p[1]
 
 def p_math_func(p):
     """

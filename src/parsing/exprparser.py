@@ -54,14 +54,20 @@ def parse_expr_specification(program_txt):
             var_obj = Variable(symbol.name, VariableType.NUMBER, ())
             sympy_obj = Symbol(symbol.name)
         elif symbol_type == AstExprType.VECTOR:
-            vector_size = int(symbol.type_info.dimension[0])
+            vector_size = symbol.type_info.dimension[0]
+            if isinstance(vector_size, str):
+                vector_size = sympy_locals[vector_size]
             var_obj = Variable(symbol.name, VariableType.VECTOR, (vector_size,))
             sympy_obj = MatrixSymbol(symbol.name, vector_size, 1)
         else:
             # Matrix case
             dimension = symbol.type_info.dimension
-            num_rows = int(dimension[0])
-            num_cols = int(dimension[1])
+            num_rows = dimension[0]
+            if isinstance(dimension[0], str):
+                num_rows = sympy_locals[dimension[0]]
+            num_cols = dimension[1]
+            if isinstance(dimension[1], str):
+                num_cols = sympy_locals[dimension[1]]
             var_obj = Variable(
                 symbol.name, VariableType.MATRIX, (num_rows, num_cols)
             )
