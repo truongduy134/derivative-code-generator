@@ -14,14 +14,14 @@ vector imgP(3) : nodiff      // Transformed image point (x, y, z)
 // and the point imgP
 expr main =
   // Error in x-coordinate
-  ((1.0 - q[2] ^ 2 - q[3] ^ 2) * p[0] +
+  ((1.0 - 2 * (q[1] ^ 2 + q[2] ^ 2)) * p[0] +
    2 * (q[0] * q[1] - q[2] * q[3]) * p[1] +
    2 * (q[0] * q[2] + q[1] * q[3]) * p[2] - imgP[0]) ^ 2 +
   // Error in y-coordinate
   (2 * (q[0] * q[1] + q[2] * q[3]) * p[0] +
-   (1.0 - q[0] ^ 2 - q[2] ^ 2) * p[1] +
+   (1.0 - 2 * (q[0] ^ 2 + q[2] ^ 2)) * p[1] +
    2 * (q[1] * q[2] - q[0] * q[3]) * p[2] - imgP[1]) ^ 2 +
   // Error in z-coordinate
   (2 * (q[0] * q[2] - q[1] * q[3]) * p[0] +
    2 * (q[1] * q[2] + q[0] * q[3]) * p[1] +
-   (1.0 - q[0] ^ 2 - q[1] ^ 2) * p[2] - imgP[2]) ^ 2
+   (1.0 - 2 * (q[0] ^ 2 + q[1] ^ 2)) * p[2] - imgP[2]) ^ 2
