@@ -21,7 +21,7 @@ REQUIRED_SYMPY_VERSION = '0.7.6'
 
 setup(
     name="DerivativeCodeGenerator",
-    version="0.1",
+    version="0.0.1",
     description="Derivative Code Generator Script",
     long_description=LONG_DESCRIPTION,
     license="MIT",
