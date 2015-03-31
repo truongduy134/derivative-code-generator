@@ -18,8 +18,8 @@ class ExprClassCodeGenerator(object):
     Public object member attributes:
         var_list : A list of Variable objects
         expr : A sympy symbolic expression
-        class_name : A string indicating the name of the generated expression
-                     class
+        config : A dictionary with key-value pairs indicating configuration for
+                 code generation such as class name, package name, etc.
         diff_var_list : A list of Variable objects used for differentiation
                         when generating hessian and jacobian methods
     """
@@ -35,16 +35,21 @@ class ExprClassCodeGenerator(object):
             self,
             var_list,
             sympy_expr,
-            class_name=None,
+            config=None,
             diff_var_list=None):
         """ Class constructor
         """
         self.var_list = var_list
         self.expr = sympy_expr
-        if class_name is None:
-            self.class_name = ExprClassCodeGenerator.DEFAULT_CLASS_NAME
+        if config is None:
+            self.config = {}
         else:
-            self.class_name = class_name
+            self.config = config
+        if "classname" not in self.config:
+            self.config["classname"] = ""
+        if not self.config["classname"]:
+            self.config["classname"] = ExprClassCodeGenerator.DEFAULT_CLASS_NAME
+
         if diff_var_list is None:
             self.diff_var_list = self.var_list
         else:
@@ -164,12 +169,12 @@ class JavaExprClassCodeGenerator(ExprClassCodeGenerator):
             self,
             var_list,
             sympy_expr,
-            class_name=None,
+            config=None,
             diff_var_list=None):
         """ Class constructor
         """
         ExprClassCodeGenerator.__init__(
-            self, var_list, sympy_expr, class_name, diff_var_list)
+            self, var_list, sympy_expr, config, diff_var_list)
 
     def _gen_code_header(self, file_handler):
         """ Generates Java code for the beginning section of a class file,
@@ -180,6 +185,7 @@ class JavaExprClassCodeGenerator(ExprClassCodeGenerator):
             file_handler : an instance of FileCodeWriter that handles writing
                            generated code to a file.
         """
+        # Header comment
         star_line = '*' * 78
         header_comment = (
             "/%s"
@@ -199,7 +205,11 @@ class JavaExprClassCodeGenerator(ExprClassCodeGenerator):
             REPOSITORY_LINK,
             star_line
         ))
-        file_handler.write("public class %s {\n" % self.class_name)
+
+        # Package and class
+        if self.config["package"]:
+            file_handler.write("package %s;\n\n" % self.config["package"])
+        file_handler.write("public class %s {\n" % self.config["classname"])
 
     def _gen_code_footer(self, file_handler):
         """ Generates Java code for the ending section of a class file, such as
@@ -265,7 +275,7 @@ class JavaExprClassCodeGenerator(ExprClassCodeGenerator):
         """
         file_handler.write(
             "%s {}\n\n" % codegenutil.get_java_func_declaration(
-                self.class_name, "", [], ["public"]))
+                self.config["classname"], "", [], ["public"]))
 
     def default_file_name(self):
         """ Gets the default file name (with extension) for the source code file
@@ -274,4 +284,4 @@ class JavaExprClassCodeGenerator(ExprClassCodeGenerator):
         Returns:
             file_name : a string representing a file name with java extension.
         """
-        return self.class_name + "." + "java"
+        return self.config["classname"] + "." + "java"
