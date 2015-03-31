@@ -94,8 +94,10 @@ def get_code_gen_config(args):
         with open(config_file_path, "r") as config_file:
             config = json.load(config_file)
             if not isinstance(config, dict):
-                raise IOError("The file at path %s is not a JSON object file" %
-                    config_file_path)
+                raise IOError(
+                    "The file at path %s is not a JSON object file" %
+                    config_file_path
+                )
             for key, value in config.iteritems():
                 code_gen_config[key.lower()] = value
 
