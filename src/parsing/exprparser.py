@@ -62,6 +62,11 @@ def parse_expr_specification(program_txt):
                 diff_var_list.append(var_obj)
         sympy_locals[symbol.name] = sympy_obj
 
+    # Create reserved variables
+    reserved_names = sympyutils.get_reserved_var_names()
+    for var_name in reserved_names:
+        sympy_locals[var_name] = Symbol(var_name)
+
     # Main expression
     expr_str = ast_main_expr.to_sympy_str()
     print expr_str

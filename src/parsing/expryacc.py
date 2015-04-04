@@ -286,6 +286,7 @@ def p_math_func(p):
               | TAN
               | COT
               | LN
+              | NORM
               | TRANSPOSE
     """
     p[0] = p[1]

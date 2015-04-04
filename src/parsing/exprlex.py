@@ -28,6 +28,7 @@ tokens = (
     "LN",
 
     # Vector and matrix math functions
+    "NORM",
     "TRANSPOSE",
 
     # Math operator
@@ -65,6 +66,7 @@ reserved = {
     "ln" : "LN",
 
     # Vector and matrix functions
+    "norm": "NORM",
     "transpose" : "TRANSPOSE",
 
     # Reserved type keywords
