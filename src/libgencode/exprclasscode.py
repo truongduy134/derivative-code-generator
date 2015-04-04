@@ -207,7 +207,7 @@ class JavaExprClassCodeGenerator(ExprClassCodeGenerator):
         ))
 
         # Package and class
-        if self.config["package"]:
+        if ("package" in self.config) and self.config["package"]:
             file_handler.write("package %s;\n\n" % self.config["package"])
         file_handler.write("public class %s {\n" % self.config["classname"])
 
