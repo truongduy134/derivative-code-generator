@@ -63,3 +63,12 @@ def distinguish_dummy_vars(sympy_expr):
         if atom.is_Dummy:
             atom.name += str(suffix)
             suffix += 1
+
+def get_reserved_var_names():
+    """ Gets the list of reserved variable names by the code generator (which
+    may be used for temporary loop counters)
+
+    Returns:
+        var_names : A list of strings indicated reserved variable names
+    """
+    return ["___tmp_loop_counter_1", "___tmp_loop_counter_2"]

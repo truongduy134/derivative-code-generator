@@ -3,6 +3,42 @@ The module contains definitions for structures used to construct the abstract
 syntax tree of the expression specification grammar
 """
 
+from common import sympyutils
+
+def get_norm_sympy_str(ast_expr):
+    """ Gets a string which is a Sympy expression to evaluate Frobenius norm
+    for matrix symbol, and 2-norm for vector symbol. If the expression is
+    evaluated to a single number, the norm of the expression is the number
+    itself
+
+    Args:
+        ast_expr : An AstExpression object
+
+    Returns:
+        norm_expr_str : A string which is a Sympy expression for computing norm
+    """
+    counter_vars = sympyutils.get_reserved_var_names()
+    expr_type = ast_expr.expr_type
+    expr_str = ast_expr.to_sympy_str()
+    norm_expr_str = ""
+    dimension = expr_type.dimension
+
+    if expr_type.type == AstExprType.NUMBER:
+        norm_expr_str = "sqrt((%s)**2" % expr_str
+    elif expr_type.type == AstExprType.VECTOR:
+        norm_expr_str = "sqrt(Sum(((%s)[%s,0])**2,(%s,0,%s)))" % (
+            expr_str, counter_vars[0], counter_vars[0],
+            str(dimension[0]) + "-1")
+    else:
+        # Matrix case
+        square_str = "Sum(Sum(((%s)[%s,%s])**2,(%s,0,%s)),(%s,0,%s))" % (
+            expr_str, counter_vars[0], counter_vars[1],
+            counter_vars[0], str(dimension[0]) + "-1",
+            counter_vars[1], str(dimension[1]) + "-1"
+        )
+        norm_expr_str = "sqrt(%s)" % square_str
+    return norm_expr_str
+
 class AstProgram(object):
     """
     A class that encapsulates the expression specification program information
@@ -133,6 +169,7 @@ class AstOperator(object):
      # Distinct vector and matrix operations
      DOT,
      CROSS,
+     NORM,
      TRANSPOSE,
      TRANSPOSE_SHORT,
      # Indexing
@@ -140,7 +177,7 @@ class AstOperator(object):
      # Looping
      RANGE,
      LOOP_SUM,
-     LOOP_PRODUCT) = range(21)
+     LOOP_PRODUCT) = range(22)
 
     __dict_op_to_sympy_str = {
         ADD: "+",
@@ -173,10 +210,11 @@ class AstOperator(object):
         "tan": TAN,
         "cot": COT,
         "ln": LN,
+        "norm": NORM,
         "transpose": TRANSPOSE
     }
     __binary_ops = [ADD, SUB, MUL, DIV, POW, DOT, CROSS]
-    __func_ops = [SQRT, SIN, COS, TAN, COT, LN, TRANSPOSE]
+    __func_ops = [SQRT, SIN, COS, TAN, COT, LN, NORM, TRANSPOSE]
 
     @staticmethod
     def is_func_ops(ast_op):
@@ -283,9 +321,11 @@ class AstExpression(object):
                 AstExprType.MATRIX,
                 self.operands[0].expr_type.dimension[::-1]
             )
+        elif self.operator == AstOperator.NORM:
+            self.expr_type = AstExprType(AstExprType.NUMBER, ())
         elif AstOperator.is_func_ops(self.operator):
-            # Besides transpose, currently all other functions map 1 real
-            # number to a real number
+            # Besides transpose and norm, currently all other functions map
+            # a real number to a real number
             self.expr_type = self.operands[0].expr_type
         elif self.operator == AstOperator.DOT:
             self.expr_type = AstExprType(AstExprType.NUMBER, ())
@@ -353,6 +393,8 @@ class AstExpression(object):
             )
         elif self.operator == AstOperator.TRANSPOSE_SHORT:
             result_str = "(%s).T" % self.operands[0].to_sympy_str()
+        elif self.operator == AstOperator.NORM:
+            result_str = get_norm_sympy_str(self.operands[0])
         elif AstOperator.is_func_ops(self.operator):
             operand_strs = [operand.to_sympy_str() for operand in self.operands]
             result_str = "%s(%s)" % (
