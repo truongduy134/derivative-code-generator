@@ -36,7 +36,10 @@ def parse_expr_specification(program_txt):
         symbol_type = symbol.type_info.type
         if symbol_type == AstExprType.NUMBER:
             var_obj = Variable(symbol.name, VariableType.NUMBER, ())
-            sympy_obj = Symbol(symbol.name)
+            if symbol.flag != AstSymbolFlag.USED_IN_LOOP:
+                sympy_obj = Symbol(symbol.name, real=True)
+            else:
+                sympy_obj = Symbol(symbol.name, integer=True)
         elif symbol_type == AstExprType.VECTOR:
             vector_size = symbol.type_info.dimension[0]
             if isinstance(vector_size, str):
@@ -62,10 +65,10 @@ def parse_expr_specification(program_txt):
                 diff_var_list.append(var_obj)
         sympy_locals[symbol.name] = sympy_obj
 
-    # Create reserved variables
+    # Create reserved variables for loop iteration
     reserved_names = sympyutils.get_reserved_var_names()
     for var_name in reserved_names:
-        sympy_locals[var_name] = Symbol(var_name)
+        sympy_locals[var_name] = Symbol(var_name, integer=True)
 
     # Main expression
     expr_str = ast_main_expr.to_sympy_str()
