@@ -232,7 +232,7 @@ class JavaExprClassCodeGenerator(ExprClassCodeGenerator):
             self.var_list,
             self.expr,
             ExprClassCodeGenerator.DEFAULT_EVAL_FUNC_NAME,
-            modifier_list=["public"])
+            modifier_list=["public", "static"])
         code_generator.gen_code(file_handler)
 
     def _gen_code_jacobian(self, file_handler):
@@ -247,7 +247,7 @@ class JavaExprClassCodeGenerator(ExprClassCodeGenerator):
             self.expr,
             ExprClassCodeGenerator.DEFAULT_JACOBIAN_FUNC_NAME,
             self.diff_var_list,
-            ["public"])
+            ["public", "static"])
         code_generator.gen_code(file_handler)
 
     def _gen_code_hessian(self, file_handler):
@@ -263,7 +263,7 @@ class JavaExprClassCodeGenerator(ExprClassCodeGenerator):
             self.expr,
             ExprClassCodeGenerator.DEFAULT_HESSIAN_FUNC_NAME,
             self.diff_var_list,
-            ["public"])
+            ["public", "static"])
         code_generator.gen_code(file_handler)
 
     def _gen_code_constructor(self, file_handler):
@@ -273,9 +273,8 @@ class JavaExprClassCodeGenerator(ExprClassCodeGenerator):
             file_handler : an instance of FileCodeWriter that handles writing
                            generated code to a file.
         """
-        file_handler.write(
-            "%s {}\n\n" % codegenutil.get_java_func_declaration(
-                self.config["classname"], "", [], ["public"]))
+        # Use implicit default class constructor
+        return
 
     def default_file_name(self):
         """ Gets the default file name (with extension) for the source code file
