@@ -19,4 +19,4 @@ TO-DO Lists
 - Support more functions / operations such as abs, vector norm, etc.
 - Add unit tests and necessary scripts
 - Generate code for C++, and other languages!
-- Refactor code (especially get_operator_type)
+- Refactor code ~~(especially get_operator_type)~~
