@@ -280,7 +280,8 @@ def p_integer_and_id(p):
 
 def p_math_func(p):
     """
-    math_func : SQRT
+    math_func : ABS
+              | SQRT
               | SIN
               | COS
               | TAN

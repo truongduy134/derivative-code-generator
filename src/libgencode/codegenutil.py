@@ -1,4 +1,11 @@
-from sympy import Add, Mul, Pow, Symbol, sin, cos, tan, cot, log, Sum, Product
+from sympy import (
+    Symbol,
+    Sum, Product,
+    Abs, sign, DiracDelta,
+    Add, Mul, Pow,
+    re,
+    sin, cos, tan, cot, log
+)
 from sympy.matrices.expressions.matexpr import MatrixElement
 
 from common.vardef import VariableType
@@ -10,7 +17,10 @@ class OperatorType(object):
      NUMBER,
      SYMBOL,
      MATRIX,
+     EXTRACT_REAL,  # Get the real part of a complex number
+     ABS_REAL,
      ADD_REAL,
+     DIRAC_DELTA_REAL,
      MUL_REAL,
      POW_REAL,
      SIN_REAL,
@@ -18,8 +28,9 @@ class OperatorType(object):
      TAN_REAL,
      COT_REAL,
      LOG_REAL,
+     SIGN_REAL,
      SUM_LOOP,
-     PRODUCT_LOOP) = range(14)
+     PRODUCT_LOOP) = range(18)
 
     # An array containing singleton operator type
     __SINGLETON_OP_TYPE = [NUMBER, MATRIX, SYMBOL]
@@ -147,6 +158,8 @@ def get_operator_type(sympy_expr):
         return OperatorType.NUMBER
 
     operator = sympy_expr.func
+    if operator == Abs:
+        return OperatorType.ABS_REAL
     if operator == Add:
         return OperatorType.ADD_REAL
     if operator == Mul:
@@ -167,10 +180,16 @@ def get_operator_type(sympy_expr):
         return OperatorType.COT_REAL
     if operator == log:
         return OperatorType.LOG_REAL
+    if operator == re:
+        return OperatorType.EXTRACT_REAL
+    if operator == sign:
+        return OperatorType.SIGN_REAL
     if operator == Sum:
         return OperatorType.SUM_LOOP
     if operator == Product:
         return OperatorType.PRODUCT_LOOP
+    if operator == DiracDelta:
+        return OperatorType.DIREC_DELTA_REAL
     return OperatorType.UNKNOWN
 
 def get_java_func_declaration(
