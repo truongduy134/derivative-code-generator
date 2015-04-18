@@ -62,7 +62,8 @@ class DerivativeCodeGenerator(object):
         for var_obj in self.diff_var_list:
             if var_obj.var_type == VariableType.NUMBER:
                 # Single symbol case
-                self._expanded_diff_var_list.append(Symbol(var_obj.name))
+                self._expanded_diff_var_list.append(
+                    Symbol(var_obj.name, real=True))
             else:
                 # Matrix case
                 shape = var_obj.dimension
