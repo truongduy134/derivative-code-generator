@@ -20,6 +20,7 @@ tokens = (
     "PRODUCT",
 
     # Reserved standard math functions
+    "ABS",
     "SQRT",
     "SIN",
     "COS",
@@ -58,6 +59,7 @@ tokens = (
 
 reserved = {
     # Reserved standard math functions
+    "abs" : "ABS",
     "sqrt" : "SQRT",
     "sin" : "SIN",
     "cos" : "COS",

@@ -160,6 +160,7 @@ class AstOperator(object):
      POW,
      UMINUS,            # Uniary minus
      # Functions
+     ABS,
      SQRT,
      SIN,
      COS,
@@ -177,7 +178,7 @@ class AstOperator(object):
      # Looping
      RANGE,
      LOOP_SUM,
-     LOOP_PRODUCT) = range(22)
+     LOOP_PRODUCT) = range(23)
 
     __dict_op_to_sympy_str = {
         ADD: "+",
@@ -186,6 +187,7 @@ class AstOperator(object):
         DIV: "/",
         POW: "**",
         UMINUS: "-",
+        ABS: 'Abs',
         SQRT: "sqrt",
         SIN: "sin",
         COS: "cos",
@@ -204,6 +206,7 @@ class AstOperator(object):
         "#": CROSS
     }
     __dict_str_to_func_ops = {
+        "abs": ABS,
         "sqrt": SQRT,
         "sin": SIN,
         "cos": COS,
@@ -214,7 +217,7 @@ class AstOperator(object):
         "transpose": TRANSPOSE
     }
     __binary_ops = [ADD, SUB, MUL, DIV, POW, DOT, CROSS]
-    __func_ops = [SQRT, SIN, COS, TAN, COT, LN, NORM, TRANSPOSE]
+    __func_ops = [ABS, SQRT, SIN, COS, TAN, COT, LN, NORM, TRANSPOSE]
 
     @staticmethod
     def is_func_ops(ast_op):

@@ -285,7 +285,15 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
                          for operand in operands]
 
         statement_str = "double %s = " % final_var_str
-        if expr_op_type == OperatorType.POW_REAL:
+        if expr_op_type == OperatorType.DIRAC_DELTA_REAL:
+            statement_str += "0"
+        elif expr_op_type == OperatorType.EXTRACT_REAL:
+            statement_str += operand_names[0]
+        elif expr_op_type == OperatorType.ABS_REAL:
+            statement_str += "Math.abs(%s)" % (operand_names[0])
+        elif expr_op_type == OperatorType.SIGN_REAL:
+            statement_str += "Math.signum(%s)" % (operand_names[0])
+        elif expr_op_type == OperatorType.POW_REAL:
             statement_str += "Math.pow(%s, %s)" % (
                 operand_names[0], operand_names[1])
         elif expr_op_type == OperatorType.LOG_REAL:
