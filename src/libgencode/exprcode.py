@@ -217,7 +217,7 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
             result when evaluating the expression
         """
         operands = sympy_expr.args
-        expr_op_type = codegenutil.get_operator_type(sympy_expr)
+        expr_op_type = OperatorType.get_operator_type(sympy_expr)
         temp_var_name = self._get_nxt_temp_var_name()
 
         init_value = 0.0
@@ -259,7 +259,7 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
             A string representing the name of the variable holding the final
             result when evaluating the expression
         """
-        expr_op_type = codegenutil.get_operator_type(sympy_expr)
+        expr_op_type = OperatorType.get_operator_type(sympy_expr)
 
         if OperatorType.is_singleton_op(expr_op_type):
             if expr_op_type == OperatorType.NUMBER:

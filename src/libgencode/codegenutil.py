@@ -1,11 +1,5 @@
-from sympy import (
-    Symbol,
-    Sum, Product,
-    Abs, sign, DiracDelta,
-    Add, Mul, Pow,
-    re,
-    sin, cos, tan, cot, log
-)
+import sympy
+
 from sympy.matrices.expressions.matexpr import MatrixElement
 
 from common.vardef import VariableType
@@ -35,6 +29,26 @@ class OperatorType(object):
     # An array containing singleton operator type
     __SINGLETON_OP_TYPE = [NUMBER, MATRIX, SYMBOL]
 
+    # Dictionary that maps Sympy operator / function classes to operator types
+    __SYMPY_OPERATOR_TYPE_MAP = {
+        MatrixElement: MATRIX,
+        sympy.Abs: ABS_REAL,
+        sympy.Add: ADD_REAL,
+        sympy.cos: COS_REAL,
+        sympy.cot: COT_REAL,
+        sympy.DiracDelta: DIRAC_DELTA_REAL,
+        sympy.log: LOG_REAL,
+        sympy.Mul: MUL_REAL,
+        sympy.Pow: POW_REAL,
+        sympy.Product: PRODUCT_LOOP,
+        sympy.re: EXTRACT_REAL,
+        sympy.sign: SIGN_REAL,
+        sympy.sin: SIN_REAL,
+        sympy.Sum: SUM_LOOP,
+        sympy.Symbol: SYMBOL,
+        sympy.tan: TAN_REAL,
+    }
+
     @staticmethod
     def is_singleton_op(op_code):
         """ Checks if the input operator code is of singleton type (i.e. it is
@@ -46,6 +60,26 @@ class OperatorType(object):
             True if the input operator is of singleton type. False otherwise
         """
         return op_code in OperatorType.__SINGLETON_OP_TYPE
+
+    @staticmethod
+    def get_operator_type(sympy_expr):
+        """ Gets operator type of the root of the input expression tree
+
+        Args:
+            sympy_expr : A sympy symbolic expression (which can be treated as
+                         a parse tree)
+
+        Returns:
+            op_type : a value of type OperatorType indicating the operation type
+                of the root of the current parse tree
+        """
+        if sympy_expr.is_number:
+            return OperatorType.NUMBER
+
+        operator = sympy_expr.func
+        if operator in OperatorType.__SYMPY_OPERATOR_TYPE_MAP:
+            return OperatorType.__SYMPY_OPERATOR_TYPE_MAP[operator]
+        return OperatorType.UNKNOWN
 
 class IndentType(object):
     """ An enum class for identation types (by space or by tab)
@@ -142,55 +176,6 @@ class FileCodeWriter(object):
         if self.tab_type == IndentType.BY_TAB:
             return '\t' * self.__num_tab_from_margin
         return ' ' * (self.__num_tab_from_margin * self.tab_size)
-
-def get_operator_type(sympy_expr):
-    """ Gets operator type of the root of the input expression tree
-
-    Args:
-        sympy_expr : A sympy symbolic expression (which can be treated as
-                     a parse tree)
-
-    Returns:
-        op_type : a value of type OperatorType indicating the operation type
-            of the root of the current parse tree
-    """
-    if sympy_expr.is_number:
-        return OperatorType.NUMBER
-
-    operator = sympy_expr.func
-    if operator == Abs:
-        return OperatorType.ABS_REAL
-    if operator == Add:
-        return OperatorType.ADD_REAL
-    if operator == Mul:
-        return OperatorType.MUL_REAL
-    if operator == Pow:
-        return OperatorType.POW_REAL
-    if operator == Symbol:
-        return OperatorType.SYMBOL
-    if operator == MatrixElement:
-        return OperatorType.MATRIX
-    if operator == sin:
-        return OperatorType.SIN_REAL
-    if operator == cos:
-        return OperatorType.COS_REAL
-    if operator == tan:
-        return OperatorType.TAN_REAL
-    if operator == cot:
-        return OperatorType.COT_REAL
-    if operator == log:
-        return OperatorType.LOG_REAL
-    if operator == re:
-        return OperatorType.EXTRACT_REAL
-    if operator == sign:
-        return OperatorType.SIGN_REAL
-    if operator == Sum:
-        return OperatorType.SUM_LOOP
-    if operator == Product:
-        return OperatorType.PRODUCT_LOOP
-    if operator == DiracDelta:
-        return OperatorType.DIREC_DELTA_REAL
-    return OperatorType.UNKNOWN
 
 def get_java_func_declaration(
         func_name,
