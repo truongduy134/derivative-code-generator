@@ -244,23 +244,13 @@ def p_list_vectors(p):
 
 def p_list_cores(p):
     """
-    list_cores : core rest_list_cores
-               | empty
+    list_cores : core COMMA list_cores
+               | core
     """
-    if len(p) == 3:
-        p[0] = [p[1].name] + p[2]
+    if len(p) == 2:
+        p[0] = [p[1].name]
     else:
-        p[0] = []
-
-def p_rest_list_cores(p):
-    """
-    rest_list_cores : COMMA core rest_list_cores
-                    | empty
-    """
-    if len(p) == 4:
-        p[0] = [p[2].name] + p[3]
-    else:
-        p[0] = []
+        p[0] = [p[1].name] + p[3]
 
 def p_core(p):
     """
