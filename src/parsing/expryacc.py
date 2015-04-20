@@ -79,8 +79,10 @@ def p_basic_var_declaration(p):
         p[0] = AstSymbol(p[2], AstExprType(AstExprType.MATRIX, (p[4], p[6])))
     environment[p[0].name] = p[0].type_info
 
-def p_expr_declaration(p):
-    "expr_main_declaration : EXPR MAIN EQUAL expression"
+def p_expr_main_declaration(p):
+    """
+    expr_main_declaration : EXPR MAIN EQUAL expression
+    """
     p[0] = AstMainExpression(p[4].operator, p[4].operands, [], [])
 
 def p_expression(p):
