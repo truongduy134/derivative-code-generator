@@ -19,7 +19,7 @@ def parse_expr_specification(program_txt):
                         used by the expression, and second element is a sympy
                         expression object
     """
-    const_list, symbol_list, ast_main_expr = expryacc.parse(program_txt)
+    const_list, symbol_list, ast_exprs = expryacc.parse(program_txt)
 
     var_list = []
     diff_var_list = []
@@ -27,8 +27,6 @@ def parse_expr_specification(program_txt):
 
     for constant in const_list:
         expr_value = sympy.sympify(constant.value.to_sympy_str())
-        print "constant"
-        print expr_value
         if not sympyutils.is_const_expr(expr_value):
             raise Exception(
                 "Right hand-side is not a constant in constant declaration")
@@ -72,9 +70,20 @@ def parse_expr_specification(program_txt):
     for var_name in reserved_names:
         sympy_locals[var_name] = Symbol(var_name, integer=True)
 
-    # Main expression
-    expr_str = ast_main_expr.to_sympy_str()
-    print expr_str
-    raw_sympy_expr = sympy.sympify(expr_str, sympy_locals)
-    sympy_expr = sympy.simplify(raw_sympy_expr)
-    return (var_list, diff_var_list, sympy_expr)
+    # Sympify all expressions until we encounter main expression
+    # Expressions declared after main expression are ignored
+    for (expr_name, ast_expr) in ast_exprs:
+        expr_str = ast_expr.to_sympy_str()
+        raw_sympy_expr = sympy.sympify(expr_str, sympy_locals)
+        try:
+            sympy_expr = sympy.simplify(raw_sympy_expr)
+        except:
+            # If expr cannot be simplified due to errors, just take the original
+            sympy_expr = raw_sympy_expr
+        sympy_locals[expr_name] = sympy_expr
+        if expr_name == "main":
+            print expr_str
+            break
+
+    # Return Main expression
+    return (var_list, diff_var_list, sympy_locals["main"])

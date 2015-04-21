@@ -4,7 +4,6 @@ from .astdef import (
     AstConstant,
     AstExpression,
     AstExprType,
-    AstMainExpression,
     AstOperator,
     AstSymbol,
     AstSymbolFlag
@@ -23,7 +22,7 @@ for_loop_vars = []
 
 def p_file_description(p):
     """
-    file_description : list_const_declarations list_var_declarations expr_main_declaration
+    file_description : list_const_declarations list_var_declarations list_expr_declarations
     """
     p[2] += for_loop_vars
     p[0] = (p[1], p[2], p[3])
@@ -79,11 +78,23 @@ def p_basic_var_declaration(p):
         p[0] = AstSymbol(p[2], AstExprType(AstExprType.MATRIX, (p[4], p[6])))
     environment[p[0].name] = p[0].type_info
 
-def p_expr_main_declaration(p):
+def p_list_expr_declarations(p):
     """
-    expr_main_declaration : EXPR MAIN EQUAL expression
+    list_expr_declarations : expr_declaration list_expr_declarations
+                           | empty
     """
-    p[0] = AstMainExpression(p[4].operator, p[4].operands, [], [])
+    if len(p) == 3:
+        p[0] = [p[1]] + p[2]
+    else:
+        p[0] = []
+
+def p_expr_declaration(p):
+    """
+    expr_declaration : EXPR ID EQUAL expression
+                     | EXPR MAIN EQUAL expression
+    """
+    p[0] = (p[2], p[4])
+    environment[p[2]] = p[4].expr_type
 
 def p_expression(p):
     """
