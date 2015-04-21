@@ -152,6 +152,7 @@ class AstOperator(object):
     """
 
     (SYMBOL,
+     EXPR_COLLECTION,
      # Add, subtract, divide, multiply operations
      ADD,
      SUB,
@@ -178,7 +179,7 @@ class AstOperator(object):
      # Looping
      RANGE,
      LOOP_SUM,
-     LOOP_PRODUCT) = range(23)
+     LOOP_PRODUCT) = range(24)
 
     __dict_op_to_sympy_str = {
         ADD: "+",
@@ -314,6 +315,15 @@ class AstExpression(object):
         """
         if self.operator == AstOperator.SYMBOL:
             self.expr_type = self.operands[0].type_info
+        elif self.operator == AstOperator.EXPR_COLLECTION:
+            if isinstance(self.operands[0], list):
+                num_rows = len(self.operands)
+                num_cols = len(self.operands[0])
+                self.expr_type = AstExprType(
+                    AstExprType.MATRIX, (num_rows, num_cols))
+            else:
+                self.expr_type = AstExprType(
+                    AstExprType.VECTOR, (len(self.operands), 1))
         elif self.operator == AstOperator.UMINUS:
             self.expr_type = self.operands[0].expr_type
         elif (self.operator == AstOperator.TRANSPOSE or
@@ -375,6 +385,18 @@ class AstExpression(object):
         result_str = ""
         if self.operator == AstOperator.SYMBOL:
             result_str = self.operands[0].name
+        elif self.operator == AstOperator.EXPR_COLLECTION:
+            components = []
+            if self.expr_type.type == AstExprType.VECTOR:
+                for expr in self.operands:
+                    components.append(expr.to_sympy_str())
+            else:
+                for list_exprs in self.operands:
+                    row_strs = []
+                    for expr in list_exprs:
+                        row_strs.append(expr.to_sympy_str())
+                    components.append("[%s]" % (",".join(row_strs)))
+            result_str = "Matrix([%s])" % (",".join(components))
         elif self.operator == AstOperator.DOT:
             result_str = "((%s).T*(%s))[0,0]" % (
                 self.operands[0].to_sympy_str(),

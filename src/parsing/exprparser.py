@@ -27,6 +27,8 @@ def parse_expr_specification(program_txt):
 
     for constant in const_list:
         expr_value = sympy.sympify(constant.value.to_sympy_str())
+        print "constant"
+        print expr_value
         if not sympyutils.is_const_expr(expr_value):
             raise Exception(
                 "Right hand-side is not a constant in constant declaration")
@@ -73,5 +75,6 @@ def parse_expr_specification(program_txt):
     # Main expression
     expr_str = ast_main_expr.to_sympy_str()
     print expr_str
-    sympy_expr = sympy.sympify(expr_str, sympy_locals)
+    raw_sympy_expr = sympy.sympify(expr_str, sympy_locals)
+    sympy_expr = sympy.simplify(raw_sympy_expr)
     return (var_list, diff_var_list, sympy_expr)

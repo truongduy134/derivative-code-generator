@@ -102,6 +102,8 @@ def p_expression(p):
                | vector_index
                | matrix_index
                | atom
+               | matrix_of_exprs
+               | vector_of_exprs
     """
     num_components = len(p)
     if num_components == 2:
@@ -186,6 +188,38 @@ def p_vector_index(p):
         operands = [p[2], p[5], expr_zero]
     p[0] = AstExpression(AstOperator.INDEXING, operands)
 
+def p_matrix_of_exprs(p):
+    """
+    matrix_of_exprs : LSQRBRAC list_vector_of_exprs RSQRBRAC
+    """
+    p[0] = AstExpression(AstOperator.EXPR_COLLECTION, p[2])
+
+def p_list_vector_of_exprs(p):
+    """
+    list_vector_of_exprs : vector_of_exprs COMMA list_vector_of_exprs
+                         | vector_of_exprs
+    """
+    if len(p) == 2:
+        p[0] = [p[1].operands]
+    else:
+        p[0] = [p[1].operands] + p[3]
+
+def p_vector_of_exprs(p):
+    """
+    vector_of_exprs : LSQRBRAC list_expressions RSQRBRAC
+    """
+    p[0] = AstExpression(AstOperator.EXPR_COLLECTION, p[2])
+
+def p_list_expressions(p):
+    """
+    list_expressions : expression COMMA list_expressions
+                     | expression
+    """
+    if len(p) == 2:
+        p[0] = [p[1]]
+    else:
+        p[0] = [p[1]] + p[3]
+
 def p_integer_range(p):
     """
     integer_range : LSQRBRAC expression COMMA expression RSQRBRAC
@@ -201,67 +235,15 @@ def p_integer_class(p):
 
 def p_atom(p):
     """
-    atom : core
-         | array_type
-    """
-    p[0] = AstExpression(AstOperator.SYMBOL, [p[1]])
-
-def p_array_type(p):
-    """
-    array_type : vector
-               | matrix
-    """
-    rows = len(p[1])
-    cols = 1
-    if rows > 0 and type(p[1][0]) == "list":
-        cols = len(p[1][0])
-    p[0] = AstSymbol(
-        "Matrix(%s)" % str(p[1]),
-        AstExprType(AstExprType.MATRIX, (rows, cols))
-    )
-
-def p_matrix(p):
-    """
-    matrix : LSQRBRAC list_vectors RSQRBRAC
-    """
-    p[0] = p[2]
-
-def p_vector(p):
-    """
-    vector : LSQRBRAC list_cores RSQRBRAC
-    """
-    p[0] = p[2]
-
-def p_list_vectors(p):
-    """
-    list_vectors : vector COMMA list_vectors
-                 | vector
-    """
-    if len(p) == 2:
-        p[0] = [p[1]]
-    else:
-        p[0] = [p[1]] + p[3]
-
-def p_list_cores(p):
-    """
-    list_cores : core COMMA list_cores
-               | core
-    """
-    if len(p) == 2:
-        p[0] = [p[1].name]
-    else:
-        p[0] = [p[1].name] + p[3]
-
-def p_core(p):
-    """
-    core : ID
+    atom : ID
          | DOUBLE
          | INTEGER
     """
-    core_type = AstExprType(AstExprType.NUMBER, ())
+    symbol_type = AstExprType(AstExprType.NUMBER, ())
     if type(p[1]) == str:
-        core_type = environment[p[1]]
-    p[0] = AstSymbol(str(p[1]), core_type)
+        symbol_type = environment[p[1]]
+    ast_symbol = AstSymbol(str(p[1]), symbol_type)
+    p[0] = AstExpression(AstOperator.SYMBOL, [ast_symbol])
 
 def p_integer_and_id(p):
     """
