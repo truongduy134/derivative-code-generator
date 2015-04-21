@@ -453,25 +453,3 @@ class AstExpression(object):
             result_str = "(%s)[0,0]" % result_str
 
         return result_str
-
-class AstMainExpression(AstExpression):
-    """
-    A class that encapsulates information of the MAIN expression (the expression
-    for which we generate evaluation code, hessian and jacobian code)
-
-    Public object member attributes:
-        op_type : An instance of AstOperatorType indicating the type of operator
-                  at the root of this expression tree
-        operands : A list of instances representing operands
-        expr_type : An instance of AstExprType indicating the evaluated type
-                    of the whole expression
-
-        var_list : A list of variables the expression used in the expression
-        diff_var_list : A list of variables used as differentiation variables
-                        when generating Jacobian and Hessian code.
-    """
-
-    def __init__(self, op_type, operands, var_list, diff_var_list):
-        AstExpression.__init__(self, op_type, operands, "main")
-        self.var_list = var_list
-        self.diff_var_list = diff_var_list
