@@ -75,7 +75,11 @@ def parse_expr_specification(program_txt):
     for (expr_name, ast_expr) in ast_exprs:
         expr_str = ast_expr.to_sympy_str()
         raw_sympy_expr = sympy.sympify(expr_str, sympy_locals)
-        sympy_expr = sympy.simplify(raw_sympy_expr)
+        try:
+            sympy_expr = sympy.simplify(raw_sympy_expr)
+        except:
+            # If expr cannot be simplified due to errors, just take the original
+            sympy_expr = raw_sympy_expr
         sympy_locals[expr_name] = sympy_expr
         if expr_name == "main":
             print expr_str
