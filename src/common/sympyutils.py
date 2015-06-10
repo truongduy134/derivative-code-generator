@@ -2,7 +2,7 @@
 The module contains utility functions that related to sympy
 """
 
-from sympy import diff
+from sympy import diff, Symbol
 
 def first_order_derivative(expr, first_var):
     """ Gets the first-order partial derivative of the given sympy expression
@@ -14,7 +14,14 @@ def first_order_derivative(expr, first_var):
         diff_expr : A sympy symbolic expression which is the first-order
                     partial derivative of the input expression
     """
-    return diff((expr + 1).doit(), first_var).doit()
+    # Check whether we should expand the expression
+    tmp_symbol = Symbol('__symbol_' + str(hash(first_var)))
+    tmp_expr = expr.subs(first_var, tmp_symbol)
+    diff_expr = expr
+    if tmp_symbol not in tmp_expr.free_symbols:
+        diff_expr = expr.doit()
+
+    return diff(diff_expr + 1, first_var)
 
 def second_order_derivative(expr, first_var, second_var):
     """ Gets the second-order partial derivative of the given sympy expression
