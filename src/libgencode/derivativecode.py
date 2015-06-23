@@ -145,13 +145,16 @@ class DerivativeCodeGenerator(object):
     def gen_code_all_second_order(self, file_handler):
         """ Generates code for all second-order derivative functions. Note that
             for each derivative function, its name is self.base_func_name
-            followed by indices of two variables used in differentiation
+            followed by the two indices i, j of two variables used in
+            differentiation where i <= j. Here we assume the symmetry of
+            second-order derivatives
         Args:
             file_handler : an instance of FileCodeWriter that handles writing
                            generated code to a file.
         """
-        for first_var_ind in xrange(self.get_num_expanded_diff_var()):
-            for second_var_ind in xrange(self.get_num_expanded_diff_var()):
+        num_diff_var = self.get_num_expanded_diff_var()
+        for first_var_ind in xrange(num_diff_var):
+            for second_var_ind in xrange(first_var_ind, num_diff_var):
                 self.gen_code(file_handler, first_var_ind, second_var_ind, True)
 
 class JavaDerivativeCodeGenerator(DerivativeCodeGenerator):
