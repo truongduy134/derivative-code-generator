@@ -32,18 +32,15 @@ def init_argument_parser():
     """
     arg_parser = argparse.ArgumentParser(description=DESCRIPTION)
     arg_parser.add_argument(
-        "--lang", "-l",
+        "--config", "-c",
         type=str,
         default="",
-        help="Programming language that the generated code is in. "
-             "The default language is Java."
-    )
-    arg_parser.add_argument(
-        "--dest", "-d",
-        type=str,
-        default="",
-        help="Destination directory that holds the generated code files. "
-             "By default, the current directory is used."
+        help="The file path to the json file containing configuration for "
+             "code generation, such as package name, class name, language, etc."
+             " Note that the configuration parameters specified in the command "
+             "line have higher priority than those in the configuration file "
+             "(which means they can override what are specified in the "
+             "configuration file)."
     )
     arg_parser.add_argument(
         "--cname", "-n",
@@ -55,15 +52,18 @@ def init_argument_parser():
              "to be uppercase"
     )
     arg_parser.add_argument(
-        "--config", "-c",
+        "--dest", "-d",
         type=str,
         default="",
-        help="The file path to the json file containing configuration for "
-             "code generation, such as package name, class name, language, etc."
-             " Note that the configuration parameters specified in the command "
-             "line have higher priority than those in the configuration file "
-             "(which means they can override what are specified in the "
-             "configuration file)."
+        help="Destination directory that holds the generated code files. "
+             "By default, the current directory is used."
+    )
+    arg_parser.add_argument(
+        "--lang", "-l",
+        type=str,
+        default="",
+        help="Programming language that the generated code is in. "
+             "The default language is Java."
     )
     arg_parser.add_argument(
         "exprfile", type=str,
