@@ -1,6 +1,5 @@
 from abc import ABCMeta, abstractmethod
 
-import libgencode.codegenutil as codegenutil
 from .exprcode import JavaExprCodeGenerator
 from .hessiancode import JavaHessianCodeGenerator
 from .jacobiancode import JavaJacobianCodeGenerator
@@ -43,6 +42,8 @@ class ExprClassCodeGenerator(object):
         self.expr = sympy_expr
         if config is None:
             self.config = {}
+            # By default, always generate code for computing Hessian matrix
+            self.config["nohessian"] = False
         else:
             self.config = config
         if "classname" not in self.config:
@@ -153,7 +154,8 @@ class ExprClassCodeGenerator(object):
         self._gen_code_constructor(file_handler)
         self._gen_code_eval(file_handler)
         self._gen_code_jacobian(file_handler)
-        self._gen_code_hessian(file_handler)
+        if not self.config["nohessian"]:
+            self._gen_code_hessian(file_handler)
         file_handler.untab()
         self._gen_code_footer(file_handler)
 

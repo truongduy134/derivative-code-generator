@@ -31,29 +31,7 @@ def init_argument_parser():
                      lang, dest, cname, exprfile
     """
     arg_parser = argparse.ArgumentParser(description=DESCRIPTION)
-    arg_parser.add_argument(
-        "--lang", "-l",
-        type=str,
-        default="",
-        help="Programming language that the generated code is in. "
-             "The default language is Java."
-    )
-    arg_parser.add_argument(
-        "--dest", "-d",
-        type=str,
-        default="",
-        help="Destination directory that holds the generated code files. "
-             "By default, the current directory is used."
-    )
-    arg_parser.add_argument(
-        "--cname", "-n",
-        type=str,
-        default="",
-        help="The name of the class that encapsulates generated code. "
-             "By default, the name if the expression specification file will "
-             "be used for the class name, with the first character is made "
-             "to be uppercase"
-    )
+    # Optional arguments
     arg_parser.add_argument(
         "--config", "-c",
         type=str,
@@ -66,9 +44,41 @@ def init_argument_parser():
              "configuration file)."
     )
     arg_parser.add_argument(
+        "--cname", "-n",
+        type=str,
+        default="",
+        help="The name of the class that encapsulates generated code. "
+             "By default, the name if the expression specification file will "
+             "be used for the class name, with the first character is made "
+             "to be uppercase"
+    )
+    arg_parser.add_argument(
+        "--dest", "-d",
+        type=str,
+        default="",
+        help="Destination directory that holds the generated code files. "
+             "By default, the current directory is used."
+    )
+    arg_parser.add_argument(
+        "--lang", "-l",
+        type=str,
+        default="",
+        help="Programming language that the generated code is in. "
+             "The default language is Java."
+    )
+    arg_parser.add_argument(
+        "--nohessian",
+        action="store_true",
+        default=False,
+        help="Flag to turn off code generation for Hessian matrix"
+    )
+
+    # Positional arguments
+    arg_parser.add_argument(
         "exprfile", type=str,
         help="The expression specification file name or path."
     )
+
     return arg_parser
 
 def get_code_gen_config(args):
@@ -81,7 +91,8 @@ def get_code_gen_config(args):
     Returns:
         code_gen_config : A dictionary with key-value pairs indicating
                           configuration for code generation such as class name,
-                          package name, destination directory
+                          package name, destination directory, and flag whether
+                          to generate Hessian code or not
     Raises:
         IOError : An error if the configuration file path is specified, but
                   the file content is not a JSON object
@@ -124,6 +135,9 @@ def get_code_gen_config(args):
     if not dest:
         dest = os.getcwd()
     code_gen_config["dest"] = dest
+
+    # Hessian Flag
+    code_gen_config["nohessian"] = args.nohessian
 
     return dict(code_gen_config)
 
