@@ -247,7 +247,8 @@ class JavaExprClassCodeGenerator(ExprClassCodeGenerator):
             self.expr,
             ExprClassCodeGenerator.DEFAULT_JACOBIAN_FUNC_NAME,
             self.diff_var_list,
-            ["public", "static"])
+            ["public", "static"],
+            self.config["classname"])
         code_generator.gen_code(file_handler)
 
     def _gen_code_hessian(self, file_handler):
