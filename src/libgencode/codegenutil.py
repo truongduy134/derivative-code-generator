@@ -201,10 +201,11 @@ def get_java_func_declaration(
             is_first = False
         else:
             param_str += ", "
-        if var.var_type == VariableType.NUMBER:
-            type_decl = "double"
-        else:
-            type_decl = "double" + "[]" * len(var.dimension)
+        type_decl = "double"
+        if var.var_type == VariableType.VECTOR:
+            type_decl += "[]"
+        elif var.var_type == VariableType.MATRIX:
+            type_decl += "[][]"
         param_str += type_decl + " " + var.name
     modifier_str = " ".join(modifier_list)
     if modifier_str:
