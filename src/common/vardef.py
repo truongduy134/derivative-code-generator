@@ -2,12 +2,14 @@
     different symbol variable types
 """
 
+
 class VariableType(object):
     """ An enum class for variable types (number, vector, or matrix)
     """
     NUMBER = 0
     VECTOR = 1
     MATRIX = 2
+
 
 class Variable(object):
     """

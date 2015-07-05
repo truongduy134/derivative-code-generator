@@ -5,6 +5,7 @@ import libgencode.codegenutil as codegenutil
 from common.vardef import VariableType
 from .derivativecode import JavaDerivativeCodeGenerator
 
+
 class JacobianCodeGenerator(object):
     """
     This is an abstract class for generating code to compute Jacobian vector
@@ -80,6 +81,7 @@ class JacobianCodeGenerator(object):
         """
         self._diff_code_generator.gen_code_all_first_order(file_handler)
         self._gen_jacobian_code(file_handler)
+
 
 class JavaJacobianCodeGenerator(JacobianCodeGenerator):
     """
@@ -163,7 +165,7 @@ class JavaJacobianCodeGenerator(JacobianCodeGenerator):
 
         arg_class_list_var_name = "argClasses"
         main_class_var_name = (commonutil.lower_first_char(self.class_name) +
-            "Class")
+                               "Class")
         method_name_var_name = "methodName"
         method_var_name = "method"
 

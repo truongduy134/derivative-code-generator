@@ -4,6 +4,7 @@ The module contains utility functions that related to sympy
 
 from sympy import diff, Symbol
 
+
 def first_order_derivative(expr, first_var):
     """ Gets the first-order partial derivative of the given sympy expression
     Args:
@@ -23,6 +24,7 @@ def first_order_derivative(expr, first_var):
 
     return diff(diff_expr + 1, first_var)
 
+
 def second_order_derivative(expr, first_var, second_var):
     """ Gets the second-order partial derivative of the given sympy expression
     Args:
@@ -38,6 +40,7 @@ def second_order_derivative(expr, first_var, second_var):
     return first_order_derivative(
         first_order_derivative(expr, first_var),
         second_var)
+
 
 def is_const_expr(sympy_expr):
     """ Checks if a sympy expression has constant values (which can be a
@@ -56,6 +59,7 @@ def is_const_expr(sympy_expr):
         is_constant = not sympy_expr.is_symbolic()
     return is_constant
 
+
 def distinguish_dummy_vars(sympy_expr):
     """ Changes the names of dummy variables in the input sympy expression so
     that all dummy variables (usually used in sum or product loop) are
@@ -70,6 +74,7 @@ def distinguish_dummy_vars(sympy_expr):
         if atom.is_Dummy:
             atom.name += str(suffix)
             suffix += 1
+
 
 def get_reserved_var_names():
     """ Gets the list of reserved variable names by the code generator (which

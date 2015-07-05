@@ -4,6 +4,7 @@ from sympy.matrices.expressions.matexpr import MatrixElement
 
 from common.vardef import VariableType
 
+
 class OperatorType(object):
     """ An enum class for different operator / operand types
     """
@@ -81,11 +82,13 @@ class OperatorType(object):
             return OperatorType.__SYMPY_OPERATOR_TYPE_MAP[operator]
         return OperatorType.UNKNOWN
 
+
 class IndentType(object):
     """ An enum class for identation types (by space or by tab)
     """
     BY_SPACE = 0
     BY_TAB = 1
+
 
 class FileCodeWriter(object):
     """ This class is a wrapper of normal file handler with writing mode.
@@ -176,6 +179,7 @@ class FileCodeWriter(object):
         if self.tab_type == IndentType.BY_TAB:
             return '\t' * self.__num_tab_from_margin
         return ' ' * (self.__num_tab_from_margin * self.tab_size)
+
 
 def get_java_func_declaration(
         func_name,
