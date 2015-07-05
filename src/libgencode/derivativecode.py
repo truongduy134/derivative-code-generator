@@ -5,6 +5,7 @@ from common import sympyutils
 from common.vardef import VariableType
 from .exprcode import JavaExprCodeGenerator
 
+
 class DerivativeCodeGenerator(object):
     """
     This is an abstract class for generating code to compute partial derivative
@@ -194,6 +195,7 @@ class DerivativeCodeGenerator(object):
                     self.modifier_list
                 )
                 expr_generator.gen_code(file_handler)
+
 
 class JavaDerivativeCodeGenerator(DerivativeCodeGenerator):
     """

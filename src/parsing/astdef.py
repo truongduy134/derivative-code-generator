@@ -5,6 +5,7 @@ syntax tree of the expression specification grammar
 
 from common import sympyutils
 
+
 def get_norm_sympy_str(ast_expr):
     """ Gets a string which is a Sympy expression to evaluate Frobenius norm
     for matrix symbol, and 2-norm for vector symbol. If the expression is
@@ -39,6 +40,7 @@ def get_norm_sympy_str(ast_expr):
         norm_expr_str = "sqrt(%s)" % square_str
     return norm_expr_str
 
+
 class AstProgram(object):
     """
     A class that encapsulates the expression specification program information
@@ -53,6 +55,7 @@ class AstProgram(object):
         self.const_list = const_list
         self.var_list = var_list
         self.main_expr = main_expr
+
 
 class AstExprType(object):
     """
@@ -98,6 +101,7 @@ class AstExprType(object):
                 is_single = True
         return is_single
 
+
 class AstSymbolFlag(object):
     """
     An enum class that enumerates symbol flag values. For example, NO_DIFF
@@ -107,6 +111,7 @@ class AstSymbolFlag(object):
     (NORMAL,
      NO_DIFF,
      USED_IN_LOOP) = range(3)
+
 
 class AstSymbol(object):
     """
@@ -129,6 +134,7 @@ class AstSymbol(object):
         else:
             self.flag = flag
 
+
 class AstConstant(object):
     """
     A class the encapsulates constant information used in building the abstract
@@ -143,6 +149,7 @@ class AstConstant(object):
     def __init__(self, name, value):
         self.name = name
         self.value = value
+
 
 class AstOperator(object):
     """
@@ -274,6 +281,7 @@ class AstOperator(object):
         if op_str not in AstOperator.__dict_str_to_binary_ops:
             return None
         return AstOperator.__dict_str_to_binary_ops[op_str]
+
 
 class AstExpression(object):
     """

@@ -20,12 +20,14 @@ precedence = (
 environment = {}        # Map a string which is a name of an atom to its type
 for_loop_vars = []
 
+
 def p_file_description(p):
     """
     file_description : list_const_declarations list_var_declarations list_expr_declarations
     """
     p[2] += for_loop_vars
     p[0] = (p[1], p[2], p[3])
+
 
 def p_list_const_declarations(p):
     """
@@ -37,12 +39,14 @@ def p_list_const_declarations(p):
     else:
         p[0] = [p[1]] + p[2]
 
+
 def p_const_declaration(p):
     """
     const_declaration : CONST ID EQUAL expression
     """
     p[0] = AstConstant(p[2], p[4])
     environment[p[2]] = p[4].expr_type
+
 
 def p_list_var_declarations(p):
     """
@@ -54,6 +58,7 @@ def p_list_var_declarations(p):
     else:
         p[0] = []
 
+
 def p_var_declaration(p):
     """
     var_declaration : basic_var_declaration
@@ -63,6 +68,7 @@ def p_var_declaration(p):
     if len(p) == 4:
         # The variable is also used in differentiation
         p[0].flag = AstSymbolFlag.NO_DIFF
+
 
 def p_basic_var_declaration(p):
     """
@@ -78,6 +84,7 @@ def p_basic_var_declaration(p):
         p[0] = AstSymbol(p[2], AstExprType(AstExprType.MATRIX, (p[4], p[6])))
     environment[p[0].name] = p[0].type_info
 
+
 def p_list_expr_declarations(p):
     """
     list_expr_declarations : expr_declaration list_expr_declarations
@@ -88,6 +95,7 @@ def p_list_expr_declarations(p):
     else:
         p[0] = []
 
+
 def p_expr_declaration(p):
     """
     expr_declaration : EXPR ID EQUAL expression
@@ -95,6 +103,7 @@ def p_expr_declaration(p):
     """
     p[0] = (p[2], p[4])
     environment[p[2]] = p[4].expr_type
+
 
 def p_expression(p):
     """
@@ -133,6 +142,7 @@ def p_expression(p):
         # Binary operator
         p[0] = AstExpression(AstOperator.get_binary_op(p[2]), [p[1], p[3]])
 
+
 def p_loop_expression(p):
     """
     loop_expression : for_statements loop_func LPAREN expression RPAREN
@@ -141,6 +151,7 @@ def p_loop_expression(p):
     if p[2] == "product":
         op_type = AstOperator.LOOP_PRODUCT
     p[0] = AstExpression(op_type, [p[4]] + p[1])
+
 
 def p_for_statements(p):
     """
@@ -151,6 +162,7 @@ def p_for_statements(p):
         p[0] = [p[1]]
     else:
         p[0] = [p[1]] + p[2]
+
 
 def p_for_statement(p):
     """
@@ -168,11 +180,13 @@ def p_for_statement(p):
     for_loop_vars.append(loop_symbol)
     environment[loop_symbol.name] = loop_symbol.type_info
 
+
 def p_math_func_call(p):
     """
     math_func_call : math_func LPAREN expression RPAREN
     """
     p[0] = AstExpression(AstOperator.get_func_op(p[1]), [p[3]])
+
 
 def p_matrix_index(p):
     """
@@ -180,6 +194,7 @@ def p_matrix_index(p):
     """
     operands = [p[1].operands[0], p[1].operands[1], p[3]]
     p[0] = AstExpression(AstOperator.INDEXING, operands)
+
 
 def p_vector_index(p):
     """
@@ -199,11 +214,13 @@ def p_vector_index(p):
         operands = [p[2], p[5], expr_zero]
     p[0] = AstExpression(AstOperator.INDEXING, operands)
 
+
 def p_matrix_of_exprs(p):
     """
     matrix_of_exprs : LSQRBRAC list_vector_of_exprs RSQRBRAC
     """
     p[0] = AstExpression(AstOperator.EXPR_COLLECTION, p[2])
+
 
 def p_list_vector_of_exprs(p):
     """
@@ -215,11 +232,13 @@ def p_list_vector_of_exprs(p):
     else:
         p[0] = [p[1].operands] + p[3]
 
+
 def p_vector_of_exprs(p):
     """
     vector_of_exprs : LSQRBRAC list_expressions RSQRBRAC
     """
     p[0] = AstExpression(AstOperator.EXPR_COLLECTION, p[2])
+
 
 def p_list_expressions(p):
     """
@@ -231,11 +250,13 @@ def p_list_expressions(p):
     else:
         p[0] = [p[1]] + p[3]
 
+
 def p_integer_range(p):
     """
     integer_range : LSQRBRAC expression COMMA expression RSQRBRAC
     """
     p[0] = [p[2], p[4]]
+
 
 def p_integer_class(p):
     """
@@ -243,6 +264,7 @@ def p_integer_class(p):
                   | INTEGER
     """
     p[0] = AstSymbol(str(p[1]), AstExprType(AstExprType.NUMBER, ()))
+
 
 def p_atom(p):
     """
@@ -256,12 +278,14 @@ def p_atom(p):
     ast_symbol = AstSymbol(str(p[1]), symbol_type)
     p[0] = AstExpression(AstOperator.SYMBOL, [ast_symbol])
 
+
 def p_integer_and_id(p):
     """
     integer_and_id : ID
                    | INTEGER
     """
     p[0] = p[1]
+
 
 def p_math_func(p):
     """
@@ -277,6 +301,7 @@ def p_math_func(p):
     """
     p[0] = p[1]
 
+
 def p_loop_func(p):
     """
     loop_func : SUM
@@ -284,11 +309,14 @@ def p_loop_func(p):
     """
     p[0] = p[1]
 
+
 def p_empty(p):
     "empty :"
     p[0] = ""
 
+
 parser = pyyacc.yacc()
+
 
 def parse(program_text):
     """ Parses the expression description program

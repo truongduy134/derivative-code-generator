@@ -59,34 +59,34 @@ tokens = (
 
 reserved = {
     # Reserved standard math functions
-    "abs" : "ABS",
-    "sqrt" : "SQRT",
-    "sin" : "SIN",
-    "cos" : "COS",
-    "tan" : "TAN",
-    "cot" : "COT",
-    "ln" : "LN",
+    "abs": "ABS",
+    "sqrt": "SQRT",
+    "sin": "SIN",
+    "cos": "COS",
+    "tan": "TAN",
+    "cot": "COT",
+    "ln": "LN",
 
     # Vector and matrix functions
     "norm": "NORM",
-    "transpose" : "TRANSPOSE",
+    "transpose": "TRANSPOSE",
 
     # Reserved type keywords
-    "number" : "NUMBER",
-    "vector" : "VECTOR",
-    "matrix" : "MATRIX",
-    "const" : "CONST",
-    "expr" : "EXPR",
+    "number": "NUMBER",
+    "vector": "VECTOR",
+    "matrix": "MATRIX",
+    "const": "CONST",
+    "expr": "EXPR",
 
     # Reserved loop keywords,
-    "sum" : "SUM",
-    "product" : "PRODUCT",
-    "for" : "FOR",
-    "in" : "IN",
+    "sum": "SUM",
+    "product": "PRODUCT",
+    "for": "FOR",
+    "in": "IN",
 
-    "nodiff" : "NODIFF",
+    "nodiff": "NODIFF",
 
-    "main" : "MAIN"
+    "main": "MAIN"
 }
 
 # Rules for operators
@@ -108,6 +108,7 @@ t_COMMA = ","
 t_APOSTROPHE = "'"
 t_COLON = "\:"
 
+
 # Double token should have higher priority to be matched than that of
 # Integer token
 def t_DOUBLE(t):
@@ -115,10 +116,12 @@ def t_DOUBLE(t):
     t.value = float(t.value)
     return t
 
+
 def t_INTEGER(t):
     "\\d+"
     t.value = int(t.value)
     return t
+
 
 def t_ID(t):
     "[A-Za-z_][A-Za-z_0-9]*"
@@ -126,21 +129,27 @@ def t_ID(t):
         t.type = reserved[t.value]
     return t
 
+
 def t_error(t):
     """ Error handling rule
     """
     print "Illegal character '%s'" % t.value[0]
     t.lexer.skip(1)
 
+
 # Token rule for line comments, block comments and whitespaces
 # Simply discards the tokens
 t_ignore_LINE_COMMENT = "//.*"
+
+
 def t_ignore_WHITESPACES(t):
     "\\s+"
     t.lexer.lineno += t.value.count('\n')
 
+
 def t_ignore_BLOCK_COMMENT(t):
     "/\\*(.|\\n)*?\\*/"
     t.lexer.lineno += t.value.count("\n")
+
 
 lexer = pylex.lex()

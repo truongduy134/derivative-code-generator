@@ -22,6 +22,7 @@ code.
 SUPPORTED_LANGS = ["java"]
 DEFAULT_LANG = "java"
 
+
 def init_argument_parser():
     """ Creates an argument parser and adds specifications for command-line
     arguments for the expression code generation program.
@@ -80,6 +81,7 @@ def init_argument_parser():
     )
 
     return arg_parser
+
 
 def get_code_gen_config(args):
     """ Gets a dictionary containing configuration information for code
@@ -141,6 +143,7 @@ def get_code_gen_config(args):
 
     return dict(code_gen_config)
 
+
 def get_code_generator(lang, var_list, diff_var_list, sympy_expr, config):
     """ Gets the corresponding code generator for the input programming language
     Args:
@@ -166,6 +169,7 @@ def get_code_generator(lang, var_list, diff_var_list, sympy_expr, config):
         raise NotImplementedError(
             "The specified language: %s is not supported" % lang)
 
+
 def gen_code(var_list, diff_var_list, sympy_expr, code_gen_config):
     """ Generates expression class code
     Args:
@@ -187,6 +191,7 @@ def gen_code(var_list, diff_var_list, sympy_expr, code_gen_config):
         code_gen_config["dest"], code_generator.default_file_name())
     with FileCodeWriter(output_file_path) as output_file:
         code_generator.gen_code(output_file)
+
 
 def main():
     """ Main function that reads the expression specification file, does

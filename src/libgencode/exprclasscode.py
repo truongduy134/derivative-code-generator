@@ -7,6 +7,7 @@ from .jacobiancode import JavaJacobianCodeGenerator
 CODE_GENERATOR_VERSION = "0.0.1"
 REPOSITORY_LINK = "https://github.com/truongduy134/derivative-code-generator"
 
+
 class ExprClassCodeGenerator(object):
     """
     This is an abstract class for generating code to for a class containing
@@ -158,6 +159,7 @@ class ExprClassCodeGenerator(object):
             self._gen_code_hessian(file_handler)
         file_handler.untab()
         self._gen_code_footer(file_handler)
+
 
 class JavaExprClassCodeGenerator(ExprClassCodeGenerator):
     """

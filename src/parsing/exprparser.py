@@ -7,6 +7,7 @@ from .astdef import AstExprType, AstSymbolFlag
 from common import sympyutils
 from common.vardef import VariableType, Variable
 
+
 def parse_expr_specification(program_txt):
     """ Parses a program text that contains the specification of expression
 

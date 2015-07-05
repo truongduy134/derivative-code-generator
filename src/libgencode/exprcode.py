@@ -4,6 +4,7 @@ import libgencode.codegenutil as codegenutil
 from .codegenutil import OperatorType
 from common.vardef import VariableType
 
+
 class ExprCodeGenerator(object):
     """
     This is an abstract class for generating code for an input
@@ -130,6 +131,7 @@ class ExprCodeGenerator(object):
         final_var_name = self._gen_code_expr(self.expr, file_handler)
         file_handler.untab()
         self._gen_return_code(final_var_name, file_handler)
+
 
 class JavaExprCodeGenerator(ExprCodeGenerator):
     """
