@@ -3,6 +3,26 @@ The module contains utility functions that related to sympy
 """
 
 from sympy import diff, Symbol
+from sympy.matrices.expressions.matexpr import MatrixElement
+
+def is_in_expr(expr, sympy_var):
+    """ Checks if a sympy symbol or sympy matrix element is prenset in the
+    input expression
+
+    Args:
+        expr : A sympy symbolic expression
+        sympy_var : A sympy symbol or sympy matrix element
+
+    Returns
+        is_in : A boolean value indicating whether the sympy symbol or matrix
+                element is present in the expression
+    """
+    tmp_symbol = sympy_var
+    tmp_expr = expr
+    if isinstance(sympy_var, MatrixElement):
+        tmp_symbol = Symbol('__symbol_' + str(hash(sympy_var)))
+        tmp_expr = expr.subs(sympy_var, tmp_symbol)
+    return tmp_symbol in tmp_expr.free_symbols
 
 
 def first_order_derivative(expr, first_var):
@@ -15,14 +35,7 @@ def first_order_derivative(expr, first_var):
         diff_expr : A sympy symbolic expression which is the first-order
                     partial derivative of the input expression
     """
-    # Check whether we should expand the expression
-    tmp_symbol = Symbol('__symbol_' + str(hash(first_var)))
-    tmp_expr = expr.subs(first_var, tmp_symbol)
-    diff_expr = expr
-    if tmp_symbol not in tmp_expr.free_symbols:
-        diff_expr = expr.doit()
-
-    return diff(diff_expr + 1, first_var)
+    return diff(expr + 1, first_var)
 
 
 def second_order_derivative(expr, first_var, second_var):

@@ -74,6 +74,7 @@ class DerivativeCodeGenerator(object):
                 for i in xrange(shape[0]):
                     for j in xrange(shape[1]):
                         self._expanded_diff_var_list.append(var_mat[i, j])
+        self._expanded_expr = self.expr.doit()
 
     def get_num_expanded_diff_var(self):
         """ Returns the number of variables after expanding the variable list
@@ -142,14 +143,30 @@ class DerivativeCodeGenerator(object):
                 self.base_func_name followed by first_var_ind, and
                 second_var_ind (if it is not None)
         """
-        if second_var_ind is None:
+        use_expanded_expr = False
+        expr_for_diff = self.expr
+
+        first_var = self._expanded_diff_var_list[first_var_ind]
+        second_var = None
+        if second_var_ind:
+            second_var = self._expanded_diff_var_list[second_var_ind]
+
+        if not sympyutils.is_in_expr(self.expr, first_var):
+            use_expanded_expr = True
+        if second_var and not sympyutils.is_in_expr(self.expr, second_var):
+            use_expanded_expr = True
+
+        if use_expanded_expr:
+            expr_for_diff = self._expanded_expr
+
+        if not second_var:
             derivative_expr = sympyutils.first_order_derivative(
-                self.expr, self._expanded_diff_var_list[first_var_ind])
+                expr_for_diff, first_var)
         else:
             derivative_expr = sympyutils.second_order_derivative(
-                self.expr,
-                self._expanded_diff_var_list[first_var_ind],
-                self._expanded_diff_var_list[second_var_ind])
+                expr_for_diff,
+                first_var,
+                second_var)
         func_name = self.get_derivative_func_name(
             first_var_ind, second_var_ind, auto_add_suffix)
         expr_generator = self._get_expr_generator_class()(
