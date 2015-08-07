@@ -2,7 +2,8 @@
 The module contains utility functions that related to sympy
 """
 
-from sympy import diff, Symbol
+from sympy import diff, MatrixSymbol, Symbol
+from sympy.concrete import summations
 from sympy.matrices.expressions.matexpr import MatrixElement
 
 def is_in_expr(expr, sympy_var):
@@ -97,3 +98,49 @@ def get_reserved_var_names():
         var_names : A list of strings indicated reserved variable names
     """
     return ["___tmp_loop_counter_1", "___tmp_loop_counter_2"]
+
+
+def expand_expr(sympy_expr, deep=False):
+    """ Expands the input sympy expression using sympy eval_sum_direct routine
+
+    Args:
+        sympy_expr : A sympy exression
+        deep : A booealn value which is False by default. If it is True, all
+               summation expressions are expanded. Otherwise, only the root
+               expression is expanded if it is a summation expression
+
+    Returns:
+        expanded_expr : A sympy expression after doing summation expansion
+    """
+    old_args = sympy_expr.args
+    new_args = old_args
+    expr_func = sympy_expr.func
+    expanded_expr = sympy_expr
+
+    if sympy_expr.is_number or expr_func in [Symbol, MatrixSymbol]:
+        deep = False
+
+    if deep:
+        if expr_func == MatrixElement:
+            expanded_row_ind = expand_expr(old_args[1], deep)
+            expanded_col_ind = expand_expr(old_args[2], deep)
+            new_args = [old_args[0], expanded_row_ind, expanded_col_ind]
+        elif expr_func == summations.Sum:
+            new_args = [expand_expr(old_args[0], deep)] + list(old_args[1:])
+        else:
+            new_args = []
+            for sub_expr in old_args:
+                recurse_cond = not (sub_expr.is_number or
+                                    sub_expr.func in [Symbol, MatrixSymbol])
+                if recurse_cond:
+                    new_args.append(expand_expr(sub_expr, deep))
+                else:
+                    new_args.append(sub_expr)
+        expanded_expr = expr_func(*new_args)
+
+    if expr_func == summations.Sum:
+        expanded_expr = expanded_expr.args[0]
+        limits = sympy_expr.args[1:]
+        for limit in limits:
+            expanded_expr = summations.eval_sum_direct(expanded_expr, limit)
+    return expanded_expr

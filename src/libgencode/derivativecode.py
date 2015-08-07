@@ -74,7 +74,7 @@ class DerivativeCodeGenerator(object):
                 for i in xrange(shape[0]):
                     for j in xrange(shape[1]):
                         self._expanded_diff_var_list.append(var_mat[i, j])
-        self._expanded_expr = self.expr.doit()
+        self._expanded_expr = sympyutils.expand_expr(self.expr, deep=True)
 
     def get_num_expanded_diff_var(self):
         """ Returns the number of variables after expanding the variable list
