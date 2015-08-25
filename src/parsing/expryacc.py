@@ -63,11 +63,15 @@ def p_var_declaration(p):
     """
     var_declaration : basic_var_declaration
                     | basic_var_declaration COLON NODIFF
+                    | basic_var_declaration COLON EQUIVALENT
     """
     p[0] = p[1]
     if len(p) == 4:
-        # The variable is also used in differentiation
-        p[0].flag = AstSymbolFlag.NO_DIFF
+        if p[3] == "nodiff":
+            # The variable is not used in differentiation
+            p[0].flag = AstSymbolFlag.NO_DIFF
+        else:
+            p[0].flag = AstSymbolFlag.EQUIVALENT
 
 
 def p_basic_var_declaration(p):
