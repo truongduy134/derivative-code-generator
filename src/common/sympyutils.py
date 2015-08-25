@@ -142,5 +142,8 @@ def expand_expr(sympy_expr, deep=False):
         expanded_expr = expanded_expr.args[0]
         limits = sympy_expr.args[1:]
         for limit in limits:
-            expanded_expr = summations.eval_sum_direct(expanded_expr, limit)
+            (_, lower_limit, upper_limit) = limit
+            difference = upper_limit - lower_limit
+            if difference.is_Integer:
+                expanded_expr = summations.eval_sum_direct(expanded_expr, limit)
     return expanded_expr
