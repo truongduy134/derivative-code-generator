@@ -9,6 +9,8 @@ tokens = (
     "CONST",
     "EXPR",
 
+    # Variable properties / hints
+    "EQUIVALENT",
     "NODIFF",
 
     "MAIN",
@@ -84,6 +86,8 @@ reserved = {
     "for": "FOR",
     "in": "IN",
 
+    # Variable properties / hints
+    "equivalent": "EQUIVALENT",
     "nodiff": "NODIFF",
 
     "main": "MAIN"

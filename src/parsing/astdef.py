@@ -108,9 +108,10 @@ class AstSymbolFlag(object):
     means the symbol is not used as a differentiation variable, or USED_IN_LOOP
     means the symbol is a counter variable used in looping
     """
-    (NORMAL,
+    (EQUIVALENT,
+     NORMAL,
      NO_DIFF,
-     USED_IN_LOOP) = range(3)
+     USED_IN_LOOP) = range(4)
 
 
 class AstSymbol(object):

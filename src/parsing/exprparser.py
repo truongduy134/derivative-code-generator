@@ -35,6 +35,10 @@ def parse_expr_specification(program_txt):
 
     for symbol in symbol_list:
         symbol_type = symbol.type_info.type
+        props = {}
+        if symbol.flag == AstSymbolFlag.EQUIVALENT:
+            props["equivalent"] = True
+
         if symbol_type == AstExprType.NUMBER:
             var_obj = Variable(symbol.name, VariableType.NUMBER, ())
             if symbol.flag != AstSymbolFlag.USED_IN_LOOP:
@@ -45,7 +49,12 @@ def parse_expr_specification(program_txt):
             vector_size = symbol.type_info.dimension[0]
             if isinstance(vector_size, str):
                 vector_size = sympy_locals[vector_size]
-            var_obj = Variable(symbol.name, VariableType.VECTOR, (vector_size,))
+            var_obj = Variable(
+                symbol.name,
+                VariableType.VECTOR,
+                (vector_size,),
+                props
+            )
             sympy_obj = MatrixSymbol(symbol.name, vector_size, 1)
         else:
             # Matrix case
@@ -57,7 +66,10 @@ def parse_expr_specification(program_txt):
             if isinstance(dimension[1], str):
                 num_cols = sympy_locals[dimension[1]]
             var_obj = Variable(
-                symbol.name, VariableType.MATRIX, (num_rows, num_cols)
+                symbol.name,
+                VariableType.MATRIX,
+                (num_rows, num_cols),
+                props
             )
             sympy_obj = MatrixSymbol(symbol.name, num_rows, num_cols)
         if symbol.flag != AstSymbolFlag.USED_IN_LOOP:
