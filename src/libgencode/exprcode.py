@@ -310,6 +310,10 @@ class JavaExprCodeGenerator(ExprCodeGenerator):
         elif expr_op_type in [OperatorType.ADD_REAL, OperatorType.MUL_REAL]:
             op_char = " + " if expr_op_type == OperatorType.ADD_REAL else " * "
             statement_str += op_char.join(operand_names)
+        elif expr_op_type == OperatorType.CUSTOM_FUNC:
+            statement_str += "%s(%s)" % (
+                sympy_expr.func.__name__,
+                ', '.join(operand_names))
         else:
             # Operators in which we do not know how to generate code
             raise Exception(

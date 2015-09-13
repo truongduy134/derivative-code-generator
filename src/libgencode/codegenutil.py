@@ -25,7 +25,8 @@ class OperatorType(object):
      LOG_REAL,
      SIGN_REAL,
      SUM_LOOP,
-     PRODUCT_LOOP) = range(18)
+     PRODUCT_LOOP,
+     CUSTOM_FUNC) = range(19)
 
     # An array containing singleton operator type
     __SINGLETON_OP_TYPE = [NUMBER, MATRIX, SYMBOL]
@@ -80,6 +81,8 @@ class OperatorType(object):
         operator = sympy_expr.func
         if operator in OperatorType.__SYMPY_OPERATOR_TYPE_MAP:
             return OperatorType.__SYMPY_OPERATOR_TYPE_MAP[operator]
+        if hasattr(operator, 'is_Function') and operator.is_Function:
+            return OperatorType.CUSTOM_FUNC
         return OperatorType.UNKNOWN
 
 
